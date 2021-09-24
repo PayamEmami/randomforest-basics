@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>5 Random forest | Classification and Regression by RandomForest</title>
+  <meta name="description" content="This is a short tutorial on how RandomForest works" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="5 Random forest | Classification and Regression by RandomForest" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is a short tutorial on how RandomForest works" />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="5 Random forest | Classification and Regression by RandomForest" />
+  
+  <meta name="twitter:description" content="This is a short tutorial on how RandomForest works" />
+  
+
+<meta name="author" content="Payam Emami" />
+
+
+<meta name="date" content="2021-09-24" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="bagging.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.6.1/grViz.js"></script>
+
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Random Forests</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Prerequisites</a></li>
+<li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="3" data-path="dectr.html"><a href="dectr.html"><i class="fa fa-check"></i><b>3</b> Decision trees</a><ul>
+<li class="chapter" data-level="3.1" data-path="dectr.html"><a href="dectr.html#intuition"><i class="fa fa-check"></i><b>3.1</b> Intuition</a></li>
+<li class="chapter" data-level="3.2" data-path="dectr.html"><a href="dectr.html#classification"><i class="fa fa-check"></i><b>3.2</b> Classification</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="dectr.html"><a href="dectr.html#gini-index-gini-impurity-and-gini-gain"><i class="fa fa-check"></i><b>3.2.1</b> Gini index, Gini impurity and Gini gain</a></li>
+<li class="chapter" data-level="3.2.2" data-path="dectr.html"><a href="dectr.html#entropy-and-information-gain"><i class="fa fa-check"></i><b>3.2.2</b> Entropy and information gain</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="dectr.html"><a href="dectr.html#regression"><i class="fa fa-check"></i><b>3.3</b> Regression</a></li>
+<li class="chapter" data-level="3.4" data-path="dectr.html"><a href="dectr.html#pre-pruning"><i class="fa fa-check"></i><b>3.4</b> Pre-pruning</a></li>
+<li class="chapter" data-level="3.5" data-path="dectr.html"><a href="dectr.html#post-pruning"><i class="fa fa-check"></i><b>3.5</b> Post-pruning</a></li>
+<li class="chapter" data-level="3.6" data-path="dectr.html"><a href="dectr.html#cross-validation"><i class="fa fa-check"></i><b>3.6</b> Cross validation</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="bagging.html"><a href="bagging.html"><i class="fa fa-check"></i><b>4</b> Bagging</a><ul>
+<li class="chapter" data-level="4.1" data-path="bagging.html"><a href="bagging.html#bias-variance"><i class="fa fa-check"></i><b>4.1</b> Bias-variance</a></li>
+<li class="chapter" data-level="4.2" data-path="bagging.html"><a href="bagging.html#bootstrap-aggregating"><i class="fa fa-check"></i><b>4.2</b> Bootstrap aggregating</a></li>
+<li class="chapter" data-level="4.3" data-path="bagging.html"><a href="bagging.html#out-of-bag-error"><i class="fa fa-check"></i><b>4.3</b> Out-Of-Bag error</a></li>
+<li class="chapter" data-level="4.4" data-path="bagging.html"><a href="bagging.html#application"><i class="fa fa-check"></i><b>4.4</b> Application</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="random-forest.html"><a href="random-forest.html"><i class="fa fa-check"></i><b>5</b> Random forest</a><ul>
+<li class="chapter" data-level="5.1" data-path="random-forest.html"><a href="random-forest.html#tuning-parameters-for-random-forests"><i class="fa fa-check"></i><b>5.1</b> Tuning parameters for random forests</a></li>
+<li class="chapter" data-level="5.2" data-path="random-forest.html"><a href="random-forest.html#variable-importance"><i class="fa fa-check"></i><b>5.2</b> Variable importance</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="random-forest.html"><a href="random-forest.html#feature-importance-by-permutation"><i class="fa fa-check"></i><b>5.2.1</b> Feature importance by permutation</a></li>
+<li class="chapter" data-level="5.2.2" data-path="random-forest.html"><a href="random-forest.html#feature-importance-by-impurity"><i class="fa fa-check"></i><b>5.2.2</b> Feature importance by impurity</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="random-forest.html"><a href="random-forest.html#how-to-use-random-forest-in-r"><i class="fa fa-check"></i><b>5.3</b> How to use random forest in R</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="random-forest.html"><a href="random-forest.html#data"><i class="fa fa-check"></i><b>5.3.1</b> Data</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li>Payam Emami ( <li><a href="https://www.nbis.se/">National Bioinformatics Infrastructure Sweden</a></li>)</li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by RandomForest</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="random-forest" class="section level1">
+<h1><span class="header-section-number">5</span> Random forest</h1>
+<p>Before stating let’s have a look at our aggregated variance formula again:</p>
+<p><span class="math display">\[p\sigma^2+\frac{1-p}{m}\sigma^2\]</span>
+We said that if we have a large <span class="math inline">\(m\)</span>, we will end up having <span class="math inline">\(p\sigma^2\)</span> as our aggregated variance. In this formula <span class="math inline">\(p\)</span> is the pairwise correlation between the trees. We know that <span class="math inline">\(0\le p \le 1\)</span> so obviously as we decrease <span class="math inline">\(p\)</span> toward <span class="math inline">\(0\)</span> we at the same time decrease <span class="math inline">\(p\sigma^2\)</span>. So how do we decrease our variance in bagging even further? We decrease the correlation between different trees. That is exactly what Random forest does. Random forest adds another level of randomness to the process of building the tree so that trees have lower correlations. This is how random forest works:</p>
+<p>Let’s say we have a dataset with <span class="math inline">\(N\)</span> number of samples and <span class="math inline">\(p\)</span> number of features. To build a random forest model we do:</p>
+<ol style="list-style-type: decimal">
+<li><p>Take a random sample of size <span class="math inline">\(N\)</span> with replacement from the data (similar to bagging).</p></li>
+<li><p>Now for find a split, we take a random sample of <span class="math inline">\(k\)</span> variables from <span class="math inline">\(p\)</span> without replacement and use only this subset of variables to find the best split. This is the random part of random forest.</p></li>
+<li><p>For further split this tree, repeat step 2 until the tree is large enough.</p></li>
+<li><p>Repeat step 1 to 3 many times to produce more trees. This is the forest part of random forest</p></li>
+<li><p>Similar to bagging, we predict each sample to a final group by a majority vote over the set of trees. For example, if we have 500 trees and 400 of them say sample <span class="math inline">\(x\)</span> is AD, then we use this as the predicted group for the sample <span class="math inline">\(x\)</span>. For regression, we simply take the mean of all the predicted values of all the 500 trees.</p></li>
+</ol>
+<p>So the only additional component here is focusing on a random subset of our features or variables when doing a split. It should be apprenet now that random forests can redunce the variance as the directly result of bagging and random splits. In addition, they can also deal with very large datasets specially when the number of variables is large and even greater than the number of samples. Finally, random forests can highlight out competed variables. The effects of these variables are often cancelled out by other more dominant variables. However, with random forests (with large trees), they will have a chance of to a node in at least some of the trees.</p>
+<p>We are now ready to start coding random forests. We will be used <code>randomForest</code> function from <code>randomForest</code> package.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="random-forest.html#cb69-1"></a><span class="kw">library</span>(ipred)</span>
+<span id="cb69-2"><a href="random-forest.html#cb69-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb69-3"><a href="random-forest.html#cb69-3"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb69-4"><a href="random-forest.html#cb69-4"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb69-5"><a href="random-forest.html#cb69-5"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb69-6"><a href="random-forest.html#cb69-6"></a></span>
+<span id="cb69-7"><a href="random-forest.html#cb69-7"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb69-8"><a href="random-forest.html#cb69-8"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb69-9"><a href="random-forest.html#cb69-9"></a></span>
+<span id="cb69-10"><a href="random-forest.html#cb69-10"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb69-11"><a href="random-forest.html#cb69-11"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb69-12"><a href="random-forest.html#cb69-12"></a></span>
+<span id="cb69-13"><a href="random-forest.html#cb69-13"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
+<span id="cb69-14"><a href="random-forest.html#cb69-14"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
+<span id="cb69-15"><a href="random-forest.html#cb69-15"></a></span>
+<span id="cb69-16"><a href="random-forest.html#cb69-16"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb69-17"><a href="random-forest.html#cb69-17"></a>bagged_model &lt;-<span class="st"> </span><span class="kw">bagging</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">nbagg=</span><span class="dv">100</span>)</span>
+<span id="cb69-18"><a href="random-forest.html#cb69-18"></a></span>
+<span id="cb69-19"><a href="random-forest.html#cb69-19"></a></span>
+<span id="cb69-20"><a href="random-forest.html#cb69-20"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb69-21"><a href="random-forest.html#cb69-21"></a>tree_model &lt;-<span class="st"> </span><span class="kw">rpart</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,</span>
+<span id="cb69-22"><a href="random-forest.html#cb69-22"></a>   <span class="dt">method=</span><span class="st">&quot;class&quot;</span>)</span>
+<span id="cb69-23"><a href="random-forest.html#cb69-23"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb69-24"><a href="random-forest.html#cb69-24"></a>tree_model&lt;-<span class="st"> </span><span class="kw">prune</span>(tree_model, <span class="dt">cp=</span>   tree_model<span class="op">$</span>cptable[<span class="kw">which.min</span>(tree_model<span class="op">$</span>cptable[,<span class="st">&quot;xerror&quot;</span>]),<span class="st">&quot;CP&quot;</span>])</span>
+<span id="cb69-25"><a href="random-forest.html#cb69-25"></a></span>
+<span id="cb69-26"><a href="random-forest.html#cb69-26"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb69-27"><a href="random-forest.html#cb69-27"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
+<span id="cb69-28"><a href="random-forest.html#cb69-28"></a></span>
+<span id="cb69-29"><a href="random-forest.html#cb69-29"></a></span>
+<span id="cb69-30"><a href="random-forest.html#cb69-30"></a></span>
+<span id="cb69-31"><a href="random-forest.html#cb69-31"></a>acc_bagging&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(bagged_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb69-32"><a href="random-forest.html#cb69-32"></a></span>
+<span id="cb69-33"><a href="random-forest.html#cb69-33"></a>acc_tree&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(tree_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb69-34"><a href="random-forest.html#cb69-34"></a></span>
+<span id="cb69-35"><a href="random-forest.html#cb69-35"></a>acc_rf&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb69-36"><a href="random-forest.html#cb69-36"></a></span>
+<span id="cb69-37"><a href="random-forest.html#cb69-37"></a></span>
+<span id="cb69-38"><a href="random-forest.html#cb69-38"></a>confMatrix_bagging&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb69-39"><a href="random-forest.html#cb69-39"></a>confMatrix_tree&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb69-40"><a href="random-forest.html#cb69-40"></a>confMatrix_rf&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb69-41"><a href="random-forest.html#cb69-41"></a></span>
+<span id="cb69-42"><a href="random-forest.html#cb69-42"></a></span>
+<span id="cb69-43"><a href="random-forest.html#cb69-43"></a></span>
+<span id="cb69-44"><a href="random-forest.html#cb69-44"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
+<span id="cb69-45"><a href="random-forest.html#cb69-45"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>),<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_rf<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;RandomForest&quot;</span>))</span>
+<span id="cb69-46"><a href="random-forest.html#cb69-46"></a></span>
+<span id="cb69-47"><a href="random-forest.html#cb69-47"></a>plot_data<span class="op">$</span>Color=<span class="ot">NA</span></span>
+<span id="cb69-48"><a href="random-forest.html#cb69-48"></a>plot_data<span class="op">$</span>Color[plot_data<span class="op">$</span>x<span class="op">==</span>plot_data<span class="op">$</span>y]&lt;-<span class="st">&quot;red&quot;</span></span>
+<span id="cb69-49"><a href="random-forest.html#cb69-49"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb69-50"><a href="random-forest.html#cb69-50"></a></span>
+<span id="cb69-51"><a href="random-forest.html#cb69-51"></a><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(Method,<span class="dt">fill=</span>Method)) <span class="op">+</span></span>
+<span id="cb69-52"><a href="random-forest.html#cb69-52"></a><span class="st">    </span><span class="kw">geom_bar</span>(<span class="kw">aes</span>(<span class="dt">y =</span> value),</span>
+<span id="cb69-53"><a href="random-forest.html#cb69-53"></a>             <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span><span class="co">#, position = &quot;dodge&quot;</span></span>
+<span id="cb69-54"><a href="random-forest.html#cb69-54"></a>             ) <span class="op">+</span></span>
+<span id="cb69-55"><a href="random-forest.html#cb69-55"></a><span class="st">    </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="dv">-5</span>, <span class="dt">label =</span> value,<span class="dt">color=</span>Method)) <span class="op">+</span></span>
+<span id="cb69-56"><a href="random-forest.html#cb69-56"></a><span class="st">    </span><span class="kw">facet_grid</span>(x <span class="op">~</span><span class="st"> </span>y, <span class="dt">switch =</span> <span class="st">&quot;y&quot;</span>) <span class="op">+</span></span>
+<span id="cb69-57"><a href="random-forest.html#cb69-57"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;&quot;</span>,</span>
+<span id="cb69-58"><a href="random-forest.html#cb69-58"></a>         <span class="dt">y =</span> <span class="st">&quot;Predicted class&quot;</span>,</span>
+<span id="cb69-59"><a href="random-forest.html#cb69-59"></a>         <span class="dt">x =</span> <span class="st">&quot;True class&quot;</span>) <span class="op">+</span></span>
+<span id="cb69-60"><a href="random-forest.html#cb69-60"></a><span class="st">    </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb69-61"><a href="random-forest.html#cb69-61"></a><span class="st">   </span><span class="kw">geom_rect</span>(<span class="dt">data=</span>plot_data, <span class="kw">aes</span>(<span class="dt">fill=</span>Color), <span class="dt">xmin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">xmax=</span><span class="ot">Inf</span>, <span class="dt">ymin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">ymax=</span><span class="ot">Inf</span>, <span class="dt">alpha=</span><span class="fl">0.095</span>)<span class="op">+</span></span>
+<span id="cb69-62"><a href="random-forest.html#cb69-62"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;green&quot;</span>,<span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
+<span id="cb69-63"><a href="random-forest.html#cb69-63"></a><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;green&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
+<span id="cb69-64"><a href="random-forest.html#cb69-64"></a><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_blank</span>(),<span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">color =</span> , <span class="dt">fill =</span> <span class="ot">NA</span>, <span class="dt">size =</span> <span class="dv">1</span>),</span>
+<span id="cb69-65"><a href="random-forest.html#cb69-65"></a>          <span class="dt">axis.text.y =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb69-66"><a href="random-forest.html#cb69-66"></a>          <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>),</span>
+<span id="cb69-67"><a href="random-forest.html#cb69-67"></a>          <span class="dt">axis.ticks =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb69-68"><a href="random-forest.html#cb69-68"></a>          <span class="dt">strip.text.y =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">0</span>),</span>
+<span id="cb69-69"><a href="random-forest.html#cb69-69"></a>          <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>))</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups34"></span>
+<img src="_main_files/figure-html/fig-groups34-1.png" alt="Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correctl classification" width="1440" />
+<p class="caption">
+Figure 5.1: Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correctl classification
+</p>
+</div>
+<p>In this case, random forest performs slightly better (accuracy=0.75) than others. Please note that, this specific dataset is very small so all the methods are expected to work similarly. Nevertheless, the random forest algorithm is performing fairly good.</p>
+<p>Random forests just like many other statistical models have some parameters and need to be tuned. In case of random forest, these parameters are:</p>
+<ul>
+<li>The number of samples in each leaf node (<code>nodesize</code> in <code>randomForest</code> package).</li>
+<li>Number of trees (<code>ntree</code> in <code>randomForest</code> package).</li>
+<li>Number of variables to consider at each split (<code>mtry</code> in <code>randomForest</code> package).</li>
+</ul>
+<p>Please note that we don’t do pruning in random forests and <code>nodesize</code> should be used with care to not building too shallow tree. In the next section we try to tune <code>mtry</code> and <code>ntree</code>.</p>
+<div id="tuning-parameters-for-random-forests" class="section level2">
+<h2><span class="header-section-number">5.1</span> Tuning parameters for random forests</h2>
+<p>As we discussed before, cross validation can be used to tune parameters for statistical models. We can also use them for tuning <code>mtry</code> and <code>ntree</code>. An easier way to do so is to use out of bag error. We show both of our approaches here. Although there are packages like <code>caret</code> that automate this process, we use a manual approach so you can see how it is done.</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="random-forest.html#cb70-1"></a><span class="kw">library</span>(ipred)</span>
+<span id="cb70-2"><a href="random-forest.html#cb70-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb70-3"><a href="random-forest.html#cb70-3"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb70-4"><a href="random-forest.html#cb70-4"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb70-5"><a href="random-forest.html#cb70-5"></a></span>
+<span id="cb70-6"><a href="random-forest.html#cb70-6"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb70-7"><a href="random-forest.html#cb70-7"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb70-8"><a href="random-forest.html#cb70-8"></a></span>
+<span id="cb70-9"><a href="random-forest.html#cb70-9"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb70-10"><a href="random-forest.html#cb70-10"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb70-11"><a href="random-forest.html#cb70-11"></a></span>
+<span id="cb70-12"><a href="random-forest.html#cb70-12"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
+<span id="cb70-13"><a href="random-forest.html#cb70-13"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
+<span id="cb70-14"><a href="random-forest.html#cb70-14"></a></span>
+<span id="cb70-15"><a href="random-forest.html#cb70-15"></a></span>
+<span id="cb70-16"><a href="random-forest.html#cb70-16"></a><span class="co"># Create grid of search parameters</span></span>
+<span id="cb70-17"><a href="random-forest.html#cb70-17"></a>hp_grid &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(</span>
+<span id="cb70-18"><a href="random-forest.html#cb70-18"></a>  <span class="dt">mtry       =</span> <span class="kw">c</span>(<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>),</span>
+<span id="cb70-19"><a href="random-forest.html#cb70-19"></a>  <span class="dt">ntree =</span> <span class="kw">seq</span>(<span class="dv">100</span>, <span class="dv">500</span>, <span class="dt">by =</span> <span class="dv">100</span>),</span>
+<span id="cb70-20"><a href="random-forest.html#cb70-20"></a>  <span class="dt">OOB  =</span> <span class="dv">0</span>,</span>
+<span id="cb70-21"><a href="random-forest.html#cb70-21"></a>  <span class="dt">CV =</span> <span class="dv">0</span></span>
+<span id="cb70-22"><a href="random-forest.html#cb70-22"></a>)</span>
+<span id="cb70-23"><a href="random-forest.html#cb70-23"></a></span>
+<span id="cb70-24"><a href="random-forest.html#cb70-24"></a><span class="co"># loop over each hpyper parameter</span></span>
+<span id="cb70-25"><a href="random-forest.html#cb70-25"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(hp_grid)) {</span>
+<span id="cb70-26"><a href="random-forest.html#cb70-26"></a>  </span>
+<span id="cb70-27"><a href="random-forest.html#cb70-27"></a>  <span class="co"># train model</span></span>
+<span id="cb70-28"><a href="random-forest.html#cb70-28"></a>  <span class="kw">set.seed</span>(i)</span>
+<span id="cb70-29"><a href="random-forest.html#cb70-29"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span>hp_grid<span class="op">$</span>ntree[i],<span class="dt">mtry=</span>hp_grid<span class="op">$</span>mtry[i],<span class="dt">importance=</span>T)</span>
+<span id="cb70-30"><a href="random-forest.html#cb70-30"></a></span>
+<span id="cb70-31"><a href="random-forest.html#cb70-31"></a><span class="kw">set.seed</span>(i)</span>
+<span id="cb70-32"><a href="random-forest.html#cb70-32"></a>folds &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">length.out =</span> <span class="kw">nrow</span>(limited_data4_training)), <span class="dt">size =</span> <span class="kw">nrow</span>(limited_data4_training), <span class="dt">replace =</span> F)</span>
+<span id="cb70-33"><a href="random-forest.html#cb70-33"></a></span>
+<span id="cb70-34"><a href="random-forest.html#cb70-34"></a>CV_rf &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(x){</span>
+<span id="cb70-35"><a href="random-forest.html#cb70-35"></a>  tmp&lt;-limited_data4_training[folds <span class="op">!=</span><span class="st"> </span>x,]</span>
+<span id="cb70-36"><a href="random-forest.html#cb70-36"></a>  <span class="kw">set.seed</span>(i<span class="op">*</span>x)</span>
+<span id="cb70-37"><a href="random-forest.html#cb70-37"></a>  model &lt;-<span class="st"> </span>randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span>limited_data4_training[folds <span class="op">!=</span><span class="st"> </span>x,] ,<span class="dt">ntree=</span>hp_grid<span class="op">$</span>ntree[i],<span class="dt">mtry=</span>hp_grid<span class="op">$</span>mtry[i],<span class="dt">importance=</span>T)</span>
+<span id="cb70-38"><a href="random-forest.html#cb70-38"></a></span>
+<span id="cb70-39"><a href="random-forest.html#cb70-39"></a>  <span class="kw">return</span>( <span class="dv">100</span><span class="op">-</span>rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(model,limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,],<span class="dt">type=</span><span class="st">&quot;response&quot;</span>), limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,<span class="st">&quot;group&quot;</span>] )<span class="op">$</span>PCC)</span>
+<span id="cb70-40"><a href="random-forest.html#cb70-40"></a>  })</span>
+<span id="cb70-41"><a href="random-forest.html#cb70-41"></a></span>
+<span id="cb70-42"><a href="random-forest.html#cb70-42"></a>hp_grid<span class="op">$</span>OOB[i] &lt;-<span class="st"> </span><span class="kw">round</span>(rf_model<span class="op">$</span>err.rate[rf_model<span class="op">$</span>ntree,<span class="st">&quot;OOB&quot;</span>] <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="dt">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb70-43"><a href="random-forest.html#cb70-43"></a>hp_grid<span class="op">$</span>CV[i]&lt;-<span class="kw">median</span>(CV_rf)</span>
+<span id="cb70-44"><a href="random-forest.html#cb70-44"></a>}</span>
+<span id="cb70-45"><a href="random-forest.html#cb70-45"></a></span>
+<span id="cb70-46"><a href="random-forest.html#cb70-46"></a>hp_grid<span class="op">$</span>ntree&lt;-<span class="kw">factor</span>(hp_grid<span class="op">$</span>ntree)</span>
+<span id="cb70-47"><a href="random-forest.html#cb70-47"></a>oob_plot&lt;-<span class="kw">ggplot</span>(<span class="dt">data =</span> hp_grid, <span class="kw">aes</span>(<span class="dt">x=</span>mtry, <span class="dt">y=</span>OOB)) <span class="op">+</span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="kw">theme_classic</span>()<span class="op">+</span><span class="kw">ylim</span>(<span class="kw">min</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)),<span class="kw">max</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)))</span>
+<span id="cb70-48"><a href="random-forest.html#cb70-48"></a>cv_plot&lt;-<span class="kw">ggplot</span>(<span class="dt">data =</span> hp_grid, <span class="kw">aes</span>(<span class="dt">x=</span>mtry, <span class="dt">y=</span>CV)) <span class="op">+</span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="kw">theme_classic</span>()<span class="op">+</span><span class="kw">ylim</span>(<span class="kw">min</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)),<span class="kw">max</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)))</span>
+<span id="cb70-49"><a href="random-forest.html#cb70-49"></a>cowplot<span class="op">::</span><span class="kw">plot_grid</span>(oob_plot,cv_plot,<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>))</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups35"></span>
+<img src="_main_files/figure-html/fig-groups35-1.png" alt="Paramemter tuning for mtry and ntree. Out of bag errors (A) are compared with cross validation (B)" width="1440" />
+<p class="caption">
+Figure 5.2: Paramemter tuning for mtry and ntree. Out of bag errors (A) are compared with cross validation (B)
+</p>
+</div>
+<p>In the plot above, we have plotted out of bag error (OOB) and cross validation error (CV) vs <code>mtry</code>. In out of bag error (plot A), we see that <code>mtry</code>: 5 and <code>ntree</code>: 2 have minimize the error rate: 22.64. In plot B, we present the median error rate of 5-fold cross validation. We see that <code>mtry</code>: 4 and <code>ntree</code>: 300 have minimize the error rate: 19.047619. So cross validation has minimize the error rate so we can probably use the parameters suggested by cross validation. In practice however, having too few samples, out of bag is probably more preferable that cross validation.</p>
+</div>
+<div id="variable-importance" class="section level2">
+<h2><span class="header-section-number">5.2</span> Variable importance</h2>
+<p>Random forests are not only used for doing prediction but they provide a very powerful framework for variable selection. Variable selection or feature importance refer to the process of finding what variables have most influence on the outcome of the model. So a researcher might as if i can diagnose a type of cancer with a very good accuracy what are the genes that are more important for doing that prediction? This type of question can be answered by variable selection. In random forests, there are two major ways to find the importance of a variable. One is based on mean increase in prediction error via permutation and the second one is decrease in node impurity. Both of these can be calculated either by setting <code>importance=TRUE</code> in the main <code>randomForest</code> function or by directly using <code>importance</code> function. Let’s first talk about how they are calculated.</p>
+<div id="feature-importance-by-permutation" class="section level3">
+<h3><span class="header-section-number">5.2.1</span> Feature importance by permutation</h3>
+<p>To calculate the feature importance by permutation, one can use both cross validation and out of bag errors. Here we focus on out of bag errors:</p>
+<p>Let’s say that we trained a model <span class="math inline">\(f\)</span> on the our data <span class="math inline">\(X\)</span> on response <span class="math inline">\(y\)</span>. As we said before, we can calculate out of bag errors (OOB) for this model. Let’s call this <span class="math inline">\(OOB^{\ orig}\)</span> and calculate it using an error measure <span class="math inline">\(E\)</span> so: <span class="math inline">\(OOB^{\ orig}=E(y-f(X))\)</span>.
+Now, what we do is that for each of the features <span class="math inline">\(i=1,...,p\)</span> We do a random permutation (shuffling) and put it back in the original matrix. Let’s call this matrix <span class="math inline">\(X^{perm}_i\)</span>. This means all other features are original ones except feature <span class="math inline">\(i\)</span> that has been randomly shuffled.
+We can now calculate the out of bag error for this new data <span class="math inline">\(OOB^{\ perm}_i=E(y-f(X^{perm}_i))\)</span>. In the last step we calculate the difference between the original out of bag error vs. the permuted out of bag error: <span class="math inline">\(dif_i=OOB^{\ perm}_i-OOB^{\ orig}\)</span>.
+We do this for all the features, one at the time giving us the list of permuted <span class="math inline">\(OOB^{\ perm}_i ,\ i=1,...,p\)</span>.
+In the last step we normalize this by the standard deviation of <span class="math inline">\(OOB^{\ perm}\)</span> and sorting by descending order.</p>
+<p>To put it simply, we ask the question that if we shuffle this specific feature, how much our model become poorer than the original mode. If a feature make our model becomes worse a lot, it has more influence on the model thus it is more important. By sorting these influences we can rank our variables according to their importance. One great this about this way of finding feature importance is that we can also calculate <span class="math inline">\(OOB\)</span> not only for all the samples but for each class of the samples (e.g., AD or control) giving us feature importance for predicting specific group of samples.</p>
+</div>
+<div id="feature-importance-by-impurity" class="section level3">
+<h3><span class="header-section-number">5.2.2</span> Feature importance by impurity</h3>
+<p>Feature importance by impurity does not take into account the out of bag error or cross validation but rather asks the question of how much throughout the tree a specific feature has been decreasing the impurity.</p>
+<p>If you remember, we calculate a node Gini impurity by <span class="math inline">\(\text{Gini impurity}=1-\sum_{i}^{C}{p(i)^2}\)</span> and entropy by <span class="math inline">\(\text{Entropy}=1-\sum_{i}^{C}{p(i)log{_2}{p(i)}}\)</span>, for classification and for regression by <span class="math inline">\(MSE=\frac{1}{n}\sum_{i=1}^{n}{(y_i-\bar{y_i})^2}\)</span> or by residual sum of squares. At this stage, no matter what we use, we want to call this <span class="math inline">\(IMP_j\)</span> where <span class="math inline">\(j\)</span> can be any node in the tree. And if you remember, we calculate the weighted removed impurity of a parent node as:</p>
+<p><span class="math display">\[RI_j=W_j\times IMP_j-W_{left_j}\times IMP_{left_j}-W_{right_j}\times IMP_{right_j}\]</span></p>
+<p>where <span class="math inline">\(W_{j}\)</span> is the weight of the parent node (e.g <span class="math inline">\(\frac{N(j)}{N}\)</span>; proportion data coming into node <span class="math inline">\(j\)</span>). <span class="math inline">\(W_{left_j}\)</span> is the weight of the left child node of <span class="math inline">\(j\)</span> (see aggregating gini above). Please note that in some implementations <span class="math inline">\(W_j\)</span> has been removed.</p>
+<p>Now what we have is decrease in impurity for each node but we are interested in features not nodes! We define another measure as average feature impurity decrease:</p>
+<p><span class="math display">\[FIMP_i=\frac{\sum_{j \in N_i}{RI_j}}{\sum_{k \in t}{RI_k}}\]</span>
+Where <span class="math inline">\(N_i\)</span> is all the nodes where feature <span class="math inline">\(i\)</span> has been used to split the node and <span class="math inline">\(t\)</span> is the set of all nodes in the tree. We can then normalize this <span class="math inline">\(FIMP_i\)</span> by the sum of all <span class="math inline">\(FIMP_i\)</span> giving us:</p>
+<p><span class="math display">\[FIMP^{\ norm}_i=\frac{FIMP_i}{\sum_i^p{FIMP_i}}\]</span>
+Finally as we build multiple trees in randomforest, we have to calculate the average feature importance across all the trees:</p>
+<p><span class="math display">\[FI_i=\frac{\sum_{i\in trees}{\sum_{j\in features}{FIMP^{\ norm}_{i,j}}}}{|T|}\]</span>
+where <span class="math inline">\(FI_i\)</span> is the feature importance of variable <span class="math inline">\(i\)</span>, <span class="math inline">\(FIMP^{\ norm}_{i,j}\)</span> is the normalized <span class="math inline">\(FIMP\)</span> for feature <span class="math inline">\(i\)</span> in tree <span class="math inline">\(j\)</span> and <span class="math inline">\(|T|\)</span> is the total number of trees. What the whole thing is telling us is that for each feature in each tree, we calculate the average decrease in impurity, sum it over the trees and normalize it by the number of trees.</p>
+<p>Please note that, there are many different implementation feature importance but in principle most of them are very similar to what we have discussed so far.</p>
+<p>We can now have a look at our feature importance in random forest:</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="random-forest.html#cb71-1"></a><span class="kw">library</span>(ipred)</span>
+<span id="cb71-2"><a href="random-forest.html#cb71-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb71-3"><a href="random-forest.html#cb71-3"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb71-4"><a href="random-forest.html#cb71-4"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb71-5"><a href="random-forest.html#cb71-5"></a></span>
+<span id="cb71-6"><a href="random-forest.html#cb71-6"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb71-7"><a href="random-forest.html#cb71-7"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb71-8"><a href="random-forest.html#cb71-8"></a></span>
+<span id="cb71-9"><a href="random-forest.html#cb71-9"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb71-10"><a href="random-forest.html#cb71-10"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb71-11"><a href="random-forest.html#cb71-11"></a></span>
+<span id="cb71-12"><a href="random-forest.html#cb71-12"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
+<span id="cb71-13"><a href="random-forest.html#cb71-13"></a>randomForest<span class="op">::</span><span class="kw">varImpPlot</span>(rf_model)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups36"></span>
+<img src="_main_files/figure-html/fig-groups36-1.png" alt="Feature importance for random forests" width="1440" />
+<p class="caption">
+Figure 5.3: Feature importance for random forests
+</p>
+</div>
+<p>Both mean decrease in accuracy (left plot) and impurity base (right plot) are plotted here. We see that our top tree features are age, t-tau and <span class="math inline">\(A\beta\)</span>. Mean decrease in accuracy tells us that t-tau is more important that <span class="math inline">\(A\beta\)</span> but Gini tells the opposite. We can use any of these to select our variables.</p>
+</div>
+</div>
+<div id="how-to-use-random-forest-in-r" class="section level2">
+<h2><span class="header-section-number">5.3</span> How to use random forest in R</h2>
+<p>There are many packages for random forest. We have been using <code>randomForest</code> package in R that does a decent job and is fast enough for most of the applications. There are other implementation that you can checkout such as <code>ranger</code> that is even faster. We here go through <code>randomForest</code> package briefly.</p>
+<div id="data" class="section level3">
+<h3><span class="header-section-number">5.3.1</span> Data</h3>
+<p>Our data has to be in a data.frame where feature are in the columns and samples in the rows. The categorical variables should preferebly be <code>factor</code> and you should have a column for your response variable. You can then use <code>formula</code> capability of R to easily run randomForest: <code>randomForest::randomForest(group ~ ., data = limited_data4_training)</code>. This essentially says that our data is sitting in a data frame which has a called named <code>group</code>. The dot in from of tilde (<code>~</code>) tell the formula the use all other columns (except group) for modeling the data. This is how our data look like:</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="random-forest.html#cb72-1"></a><span class="kw">head</span>(limited_data4_training)</span></code></pre></div>
+<pre><code>##    gender age mmt abeta t_tau p_tau group
+## 1       M  75  12   370   240    44    AD
+## 4       F  82  26   230   530    84    AD
+## 7       M  70  25   270   230    34    AD
+## 9       F  68  27   160   810   100    AD
+## 11      M  77  23   430   780   119    AD
+## 12      F  80  26   350  1150   159    AD</code></pre>
+<p>You can set various parameters in <code>randomForest</code> but probabl the most relevant ones are <code>mtry</code>, <code>ntree</code> and <code>importance</code>. We have already covered all of these and in one command you can run <code>randomForest::randomForest(group ~ ., data = limited_data4_training,mtry=5,ntree=100)</code>.</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="random-forest.html#cb74-1"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb74-2"><a href="random-forest.html#cb74-2"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb74-3"><a href="random-forest.html#cb74-3"></a></span>
+<span id="cb74-4"><a href="random-forest.html#cb74-4"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb74-5"><a href="random-forest.html#cb74-5"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb74-6"><a href="random-forest.html#cb74-6"></a></span>
+<span id="cb74-7"><a href="random-forest.html#cb74-7"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb74-8"><a href="random-forest.html#cb74-8"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb74-9"><a href="random-forest.html#cb74-9"></a></span>
+<span id="cb74-10"><a href="random-forest.html#cb74-10"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
+<span id="cb74-11"><a href="random-forest.html#cb74-11"></a><span class="kw">print</span>(rf_model)</span></code></pre></div>
+<pre><code>## 
+## Call:
+##  randomForest(formula = group ~ ., data = limited_data4_training,      ntree = 100, importance = T) 
+##                Type of random forest: classification
+##                      Number of trees: 100
+## No. of variables tried at each split: 2
+## 
+##         OOB estimate of  error rate: 28.3%
+## Confusion matrix:
+##                     AD control FTD MCI/ADConverter MCI/non-ADConverter
+## AD                  36       2   0               0                   2
+## control              4      23   0               0                   1
+## FTD                  1       0   0               0                   4
+## MCI/ADConverter      9       1   0               0                   1
+## MCI/non-ADConverter  3       2   0               0                  17
+##                     class.error
+## AD                    0.1000000
+## control               0.1785714
+## FTD                   1.0000000
+## MCI/ADConverter       1.0000000
+## MCI/non-ADConverter   0.2272727</code></pre>
+<p>For doing prediction, we will use <code>predict</code> function.</p>
+
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="bagging.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

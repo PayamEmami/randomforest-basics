@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>4 Bagging | Classification and Regression by RandomForest</title>
+  <meta name="description" content="This is a short tutorial on how RandomForest works" />
+  <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="4 Bagging | Classification and Regression by RandomForest" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="This is a short tutorial on how RandomForest works" />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4 Bagging | Classification and Regression by RandomForest" />
+  
+  <meta name="twitter:description" content="This is a short tutorial on how RandomForest works" />
+  
+
+<meta name="author" content="Payam Emami" />
+
+
+<meta name="date" content="2021-09-24" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="dectr.html"/>
+<link rel="next" href="random-forest.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.0.1/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0.1/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
+<script src="libs/viz-1.8.2/viz.js"></script>
+<link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+<script src="libs/grViz-binding-1.0.6.1/grViz.js"></script>
+
+<script>
+/* ========================================================================
+ * Bootstrap: transition.js v3.3.7
+ * http://getbootstrap.com/javascript/#transitions
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+
++function ($) {
+  'use strict';
+
+  // CSS TRANSITION SUPPORT (Shoutout: http://www.modernizr.com/)
+  // ============================================================
+
+  function transitionEnd() {
+    var el = document.createElement('bootstrap')
+
+    var transEndEventNames = {
+      WebkitTransition : 'webkitTransitionEnd',
+      MozTransition    : 'transitionend',
+      OTransition      : 'oTransitionEnd otransitionend',
+      transition       : 'transitionend'
+    }
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return { end: transEndEventNames[name] }
+      }
+    }
+
+    return false // explicit for ie8 (  ._.)
+  }
+
+  // http://blog.alexmaccaw.com/css-transitions
+  $.fn.emulateTransitionEnd = function (duration) {
+    var called = false
+    var $el = this
+    $(this).one('bsTransitionEnd', function () { called = true })
+    var callback = function () { if (!called) $($el).trigger($.support.transition.end) }
+    setTimeout(callback, duration)
+    return this
+  }
+
+  $(function () {
+    $.support.transition = transitionEnd()
+
+    if (!$.support.transition) return
+
+    $.event.special.bsTransitionEnd = {
+      bindType: $.support.transition.end,
+      delegateType: $.support.transition.end,
+      handle: function (e) {
+        if ($(e.target).is(this)) return e.handleObj.handler.apply(this, arguments)
+      }
+    }
+  })
+
+}(jQuery);
+</script>
+<script>
+/* ========================================================================
+ * Bootstrap: collapse.js v3.3.7
+ * http://getbootstrap.com/javascript/#collapse
+ * ========================================================================
+ * Copyright 2011-2016 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ * ======================================================================== */
+
+/* jshint latedef: false */
+
++function ($) {
+  'use strict';
+
+  // COLLAPSE PUBLIC CLASS DEFINITION
+  // ================================
+
+  var Collapse = function (element, options) {
+    this.$element      = $(element)
+    this.options       = $.extend({}, Collapse.DEFAULTS, options)
+    this.$trigger      = $('[data-toggle="collapse"][href="#' + element.id + '"],' +
+                           '[data-toggle="collapse"][data-target="#' + element.id + '"]')
+    this.transitioning = null
+
+    if (this.options.parent) {
+      this.$parent = this.getParent()
+    } else {
+      this.addAriaAndCollapsedClass(this.$element, this.$trigger)
+    }
+
+    if (this.options.toggle) this.toggle()
+  }
+
+  Collapse.VERSION  = '3.3.7'
+
+  Collapse.TRANSITION_DURATION = 350
+
+  Collapse.DEFAULTS = {
+    toggle: true
+  }
+
+  Collapse.prototype.dimension = function () {
+    var hasWidth = this.$element.hasClass('width')
+    return hasWidth ? 'width' : 'height'
+  }
+
+  Collapse.prototype.show = function () {
+    if (this.transitioning || this.$element.hasClass('in')) return
+
+    var activesData
+    var actives = this.$parent && this.$parent.children('.panel').children('.in, .collapsing')
+
+    if (actives && actives.length) {
+      activesData = actives.data('bs.collapse')
+      if (activesData && activesData.transitioning) return
+    }
+
+    var startEvent = $.Event('show.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    if (actives && actives.length) {
+      Plugin.call(actives, 'hide')
+      activesData || actives.data('bs.collapse', null)
+    }
+
+    var dimension = this.dimension()
+
+    this.$element
+      .removeClass('collapse')
+      .addClass('collapsing')[dimension](0)
+      .attr('aria-expanded', true)
+
+    this.$trigger
+      .removeClass('collapsed')
+      .attr('aria-expanded', true)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse in')[dimension]('')
+      this.transitioning = 0
+      this.$element
+        .trigger('shown.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    var scrollSize = $.camelCase(['scroll', dimension].join('-'))
+
+    this.$element
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)[dimension](this.$element[0][scrollSize])
+  }
+
+  Collapse.prototype.hide = function () {
+    if (this.transitioning || !this.$element.hasClass('in')) return
+
+    var startEvent = $.Event('hide.bs.collapse')
+    this.$element.trigger(startEvent)
+    if (startEvent.isDefaultPrevented()) return
+
+    var dimension = this.dimension()
+
+    this.$element[dimension](this.$element[dimension]())[0].offsetHeight
+
+    this.$element
+      .addClass('collapsing')
+      .removeClass('collapse in')
+      .attr('aria-expanded', false)
+
+    this.$trigger
+      .addClass('collapsed')
+      .attr('aria-expanded', false)
+
+    this.transitioning = 1
+
+    var complete = function () {
+      this.transitioning = 0
+      this.$element
+        .removeClass('collapsing')
+        .addClass('collapse')
+        .trigger('hidden.bs.collapse')
+    }
+
+    if (!$.support.transition) return complete.call(this)
+
+    this.$element
+      [dimension](0)
+      .one('bsTransitionEnd', $.proxy(complete, this))
+      .emulateTransitionEnd(Collapse.TRANSITION_DURATION)
+  }
+
+  Collapse.prototype.toggle = function () {
+    this[this.$element.hasClass('in') ? 'hide' : 'show']()
+  }
+
+  Collapse.prototype.getParent = function () {
+    return $(this.options.parent)
+      .find('[data-toggle="collapse"][data-parent="' + this.options.parent + '"]')
+      .each($.proxy(function (i, element) {
+        var $element = $(element)
+        this.addAriaAndCollapsedClass(getTargetFromTrigger($element), $element)
+      }, this))
+      .end()
+  }
+
+  Collapse.prototype.addAriaAndCollapsedClass = function ($element, $trigger) {
+    var isOpen = $element.hasClass('in')
+
+    $element.attr('aria-expanded', isOpen)
+    $trigger
+      .toggleClass('collapsed', !isOpen)
+      .attr('aria-expanded', isOpen)
+  }
+
+  function getTargetFromTrigger($trigger) {
+    var href
+    var target = $trigger.attr('data-target')
+      || (href = $trigger.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') // strip for ie7
+
+    return $(target)
+  }
+
+
+  // COLLAPSE PLUGIN DEFINITION
+  // ==========================
+
+  function Plugin(option) {
+    return this.each(function () {
+      var $this   = $(this)
+      var data    = $this.data('bs.collapse')
+      var options = $.extend({}, Collapse.DEFAULTS, $this.data(), typeof option == 'object' && option)
+
+      if (!data && options.toggle && /show|hide/.test(option)) options.toggle = false
+      if (!data) $this.data('bs.collapse', (data = new Collapse(this, options)))
+      if (typeof option == 'string') data[option]()
+    })
+  }
+
+  var old = $.fn.collapse
+
+  $.fn.collapse             = Plugin
+  $.fn.collapse.Constructor = Collapse
+
+
+  // COLLAPSE NO CONFLICT
+  // ====================
+
+  $.fn.collapse.noConflict = function () {
+    $.fn.collapse = old
+    return this
+  }
+
+
+  // COLLAPSE DATA-API
+  // =================
+
+  $(document).on('click.bs.collapse.data-api', '[data-toggle="collapse"]', function (e) {
+    var $this   = $(this)
+
+    if (!$this.attr('data-target')) e.preventDefault()
+
+    var $target = getTargetFromTrigger($this)
+    var data    = $target.data('bs.collapse')
+    var option  = data ? 'toggle' : $this.data()
+
+    Plugin.call($target, option)
+  })
+
+}(jQuery);
+</script>
+<script>
+window.initializeCodeFolding = function(show) {
+
+  // handlers for show-all and hide all
+  $("#rmd-show-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('show');
+    });
+  });
+  $("#rmd-hide-all-code").click(function() {
+    $('div.r-code-collapse').each(function() {
+      $(this).collapse('hide');
+    });
+  });
+
+  // index for unique code element ids
+  var currentIndex = 1;
+
+  // select all R code blocks
+  var rCodeBlocks = $('pre.sourceCode, pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan');
+  rCodeBlocks.each(function() {
+
+    // create a collapsable div to wrap the code in
+    var div = $('<div class="collapse r-code-collapse"></div>');
+    if (show)
+      div.addClass('in');
+    var id = 'rcode-643E0F36' + currentIndex++;
+    div.attr('id', id);
+    $(this).before(div);
+    $(this).detach().appendTo(div);
+
+    // add a show code button right above
+    var showCodeText = $('<span>' + (show ? 'Hide' : 'Code') + '</span>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    showCodeButton.append(showCodeText);
+    showCodeButton
+        .attr('data-toggle', 'collapse')
+        .attr('data-target', '#' + id)
+        .attr('aria-expanded', show)
+        .attr('aria-controls', id);
+
+    var buttonRow = $('<div class="row"></div>');
+    var buttonCol = $('<div class="col-md-12"></div>');
+
+    buttonCol.append(showCodeButton);
+    buttonRow.append(buttonCol);
+
+    div.before(buttonRow);
+
+    // update state of button on show/hide
+    div.on('hidden.bs.collapse', function () {
+      showCodeText.text('Code');
+    });
+    div.on('show.bs.collapse', function () {
+      showCodeText.text('Hide');
+    });
+  });
+
+}
+</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Random Forests</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Prerequisites</a></li>
+<li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="3" data-path="dectr.html"><a href="dectr.html"><i class="fa fa-check"></i><b>3</b> Decision trees</a><ul>
+<li class="chapter" data-level="3.1" data-path="dectr.html"><a href="dectr.html#intuition"><i class="fa fa-check"></i><b>3.1</b> Intuition</a></li>
+<li class="chapter" data-level="3.2" data-path="dectr.html"><a href="dectr.html#classification"><i class="fa fa-check"></i><b>3.2</b> Classification</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="dectr.html"><a href="dectr.html#gini-index-gini-impurity-and-gini-gain"><i class="fa fa-check"></i><b>3.2.1</b> Gini index, Gini impurity and Gini gain</a></li>
+<li class="chapter" data-level="3.2.2" data-path="dectr.html"><a href="dectr.html#entropy-and-information-gain"><i class="fa fa-check"></i><b>3.2.2</b> Entropy and information gain</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="dectr.html"><a href="dectr.html#regression"><i class="fa fa-check"></i><b>3.3</b> Regression</a></li>
+<li class="chapter" data-level="3.4" data-path="dectr.html"><a href="dectr.html#pre-pruning"><i class="fa fa-check"></i><b>3.4</b> Pre-pruning</a></li>
+<li class="chapter" data-level="3.5" data-path="dectr.html"><a href="dectr.html#post-pruning"><i class="fa fa-check"></i><b>3.5</b> Post-pruning</a></li>
+<li class="chapter" data-level="3.6" data-path="dectr.html"><a href="dectr.html#cross-validation"><i class="fa fa-check"></i><b>3.6</b> Cross validation</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="bagging.html"><a href="bagging.html"><i class="fa fa-check"></i><b>4</b> Bagging</a><ul>
+<li class="chapter" data-level="4.1" data-path="bagging.html"><a href="bagging.html#bias-variance"><i class="fa fa-check"></i><b>4.1</b> Bias-variance</a></li>
+<li class="chapter" data-level="4.2" data-path="bagging.html"><a href="bagging.html#bootstrap-aggregating"><i class="fa fa-check"></i><b>4.2</b> Bootstrap aggregating</a></li>
+<li class="chapter" data-level="4.3" data-path="bagging.html"><a href="bagging.html#out-of-bag-error"><i class="fa fa-check"></i><b>4.3</b> Out-Of-Bag error</a></li>
+<li class="chapter" data-level="4.4" data-path="bagging.html"><a href="bagging.html#application"><i class="fa fa-check"></i><b>4.4</b> Application</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="random-forest.html"><a href="random-forest.html"><i class="fa fa-check"></i><b>5</b> Random forest</a><ul>
+<li class="chapter" data-level="5.1" data-path="random-forest.html"><a href="random-forest.html#tuning-parameters-for-random-forests"><i class="fa fa-check"></i><b>5.1</b> Tuning parameters for random forests</a></li>
+<li class="chapter" data-level="5.2" data-path="random-forest.html"><a href="random-forest.html#variable-importance"><i class="fa fa-check"></i><b>5.2</b> Variable importance</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="random-forest.html"><a href="random-forest.html#feature-importance-by-permutation"><i class="fa fa-check"></i><b>5.2.1</b> Feature importance by permutation</a></li>
+<li class="chapter" data-level="5.2.2" data-path="random-forest.html"><a href="random-forest.html#feature-importance-by-impurity"><i class="fa fa-check"></i><b>5.2.2</b> Feature importance by impurity</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="random-forest.html"><a href="random-forest.html#how-to-use-random-forest-in-r"><i class="fa fa-check"></i><b>5.3</b> How to use random forest in R</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="random-forest.html"><a href="random-forest.html#data"><i class="fa fa-check"></i><b>5.3.1</b> Data</a></li>
+</ul></li>
+</ul></li>
+<li class="divider"></li>
+<li>Payam Emami ( <li><a href="https://www.nbis.se/">National Bioinformatics Infrastructure Sweden</a></li>)</li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by RandomForest</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="bagging" class="section level1">
+<h1><span class="header-section-number">4</span> Bagging</h1>
+<div id="bias-variance" class="section level2">
+<h2><span class="header-section-number">4.1</span> Bias-variance</h2>
+<p>Let’s first think about the overfitting problem we went through before.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="bagging.html#cb67-1"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb67-2"><a href="bagging.html#cb67-2"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb67-3"><a href="bagging.html#cb67-3"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(limited_data<span class="op">$</span>p_tau),<span class="dv">50</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb67-4"><a href="bagging.html#cb67-4"></a></span>
+<span id="cb67-5"><a href="bagging.html#cb67-5"></a>limited_data4_training&lt;-limited_data[<span class="op">-</span>testing_index,]</span>
+<span id="cb67-6"><a href="bagging.html#cb67-6"></a>limited_data4_testing&lt;-limited_data[testing_index,]</span>
+<span id="cb67-7"><a href="bagging.html#cb67-7"></a></span>
+<span id="cb67-8"><a href="bagging.html#cb67-8"></a></span>
+<span id="cb67-9"><a href="bagging.html#cb67-9"></a>lw1 &lt;-<span class="st"> </span><span class="kw">loess</span>(t_tau <span class="op">~</span><span class="st"> </span>p_tau,<span class="dt">data=</span>limited_data4_training,<span class="dt">span =</span> <span class="fl">0.1</span>)</span>
+<span id="cb67-10"><a href="bagging.html#cb67-10"></a>cor1&lt;-<span class="kw">cor</span>(limited_data4_testing<span class="op">$</span>t_tau,<span class="kw">predict</span>(lw1,limited_data4_testing<span class="op">$</span>p_tau),<span class="dt">use =</span> <span class="st">&quot;p&quot;</span>)<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb67-11"><a href="bagging.html#cb67-11"></a></span>
+<span id="cb67-12"><a href="bagging.html#cb67-12"></a>j &lt;-<span class="st"> </span><span class="kw">order</span>(limited_data4_training<span class="op">$</span>p_tau)</span>
+<span id="cb67-13"><a href="bagging.html#cb67-13"></a><span class="kw">plot</span>(limited_data4_training<span class="op">$</span>p_tau,limited_data4_training<span class="op">$</span>t_tau,<span class="dt">xlab =</span> <span class="st">&quot;p-tau&quot;</span>,<span class="dt">ylab =</span> <span class="st">&quot;t-tau&quot;</span>,<span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;R2:&quot;</span>, <span class="kw">round</span>(cor1,<span class="dt">digits =</span> <span class="dv">2</span>)))</span>
+<span id="cb67-14"><a href="bagging.html#cb67-14"></a></span>
+<span id="cb67-15"><a href="bagging.html#cb67-15"></a><span class="kw">lines</span>(limited_data4_training<span class="op">$</span>p_tau[j],lw1<span class="op">$</span>fitted[j],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">lwd=</span><span class="dv">3</span>)</span>
+<span id="cb67-16"><a href="bagging.html#cb67-16"></a></span>
+<span id="cb67-17"><a href="bagging.html#cb67-17"></a></span>
+<span id="cb67-18"><a href="bagging.html#cb67-18"></a></span>
+<span id="cb67-19"><a href="bagging.html#cb67-19"></a>lw1 &lt;-<span class="st"> </span><span class="kw">loess</span>(t_tau <span class="op">~</span><span class="st"> </span>p_tau,<span class="dt">data=</span>limited_data4_training,<span class="dt">span =</span> <span class="fl">0.6</span>)</span>
+<span id="cb67-20"><a href="bagging.html#cb67-20"></a>cor2&lt;-<span class="kw">cor</span>(limited_data4_testing<span class="op">$</span>t_tau,<span class="kw">predict</span>(lw1,limited_data4_testing<span class="op">$</span>p_tau),<span class="dt">use =</span> <span class="st">&quot;p&quot;</span>)<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb67-21"><a href="bagging.html#cb67-21"></a><span class="kw">plot</span>(limited_data4_training<span class="op">$</span>p_tau,limited_data4_training<span class="op">$</span>t_tau,<span class="dt">xlab =</span> <span class="st">&quot;p-tau&quot;</span>,<span class="dt">ylab =</span> <span class="st">&quot;t-tau&quot;</span>,<span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;R2:&quot;</span>, <span class="kw">round</span>(cor2,<span class="dt">digits =</span> <span class="dv">2</span>)))</span>
+<span id="cb67-22"><a href="bagging.html#cb67-22"></a>j &lt;-<span class="st"> </span><span class="kw">order</span>(limited_data4_training<span class="op">$</span>p_tau)</span>
+<span id="cb67-23"><a href="bagging.html#cb67-23"></a><span class="kw">lines</span>(limited_data4_training<span class="op">$</span>p_tau[j],lw1<span class="op">$</span>fitted[j],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">lwd=</span><span class="dv">3</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups32"></span>
+<img src="_main_files/figure-html/fig-groups32-1.png" alt="plot of p-tau vs t-tau using two models. The model on the left has span of 0.1 and the model on the right has the span of 0.6." width="1440" />
+<p class="caption">
+Figure 4.1: plot of p-tau vs t-tau using two models. The model on the left has span of 0.1 and the model on the right has the span of 0.6.
+</p>
+</div>
+<p>The model on the left, fits the training data really good but it performs poorly on the validation set <span class="math inline">\(R^2=0.55\)</span> whereas the model on the right has a poorer fit on the training data but achieves better performance on the validation set. We tend to say that the model on the has low bias high variance. That is because it pays too much attention to the training data so that it fails to generalize to the the it has not seen before. Decision trees suffer from the same problem. If trained too much, they will have a fantastically low bias but very high variance. The idea behind bagging is to reduce this variance through training multiple models on the same data. Let’s see how it works and why it works.</p>
+</div>
+<div id="bootstrap-aggregating" class="section level2">
+<h2><span class="header-section-number">4.2</span> Bootstrap aggregating</h2>
+<p>The idea behind bootstrap aggregating is to subsample the data (with replacement) into different datasets of the same size. These datasets are then independently modeled using for example decision trees. For the prediction, we look at what each of the trees tells us about the value of the new sample and simply accept what the majority of them are saying!</p>
+<p>More formally, if we assume that we have <span class="math inline">\(N\)</span> samples in our datasets we do the following:</p>
+<ol style="list-style-type: decimal">
+<li><p>Take a random sample of size <span class="math inline">\(N\)</span> with replacement from the original dataset.</p></li>
+<li><p>Train a decision tree on this subset (no pruning here. We want this to have relatively high bias).</p></li>
+<li><p>Repeat the step 1 and 2 many many times.</p></li>
+<li><p>Predict each sample to a final group by a majority vote over the set of trees. For example, if we have 500 trees and 400 of them say sample <span class="math inline">\(x\)</span> is AD, then we use this as the predicted group for the sample <span class="math inline">\(x\)</span>. For regression, we simply take the mean of all the predicted values of all the 500 trees.</p></li>
+</ol>
+<p>Please note that we let each tree to grow reasonably large to capture each tree point of view of our problem. This often leads to high variance in each tree but then we the averaging or the majority of the vote will reduce this variance to a resonable number. More formally if we define our variance as <span class="math inline">\(\sigma^2\)</span> for a single variable, having <span class="math inline">\(m\)</span> variables (independently and identically distributed) will give us <span class="math inline">\(\frac{\sigma^2}{m}\)</span>. In the case of bagging, since we draw from the same pool of samples, we don’t have independently distributed samples so we have to take correlation into account. Thus our variance of average becomes <span class="math inline">\(p\sigma^2+\frac{1-p}{m}\sigma^2\)</span> where <span class="math inline">\(p\)</span> is pairwise correlation between different trees and <span class="math inline">\(\sigma^2\)</span> is the variance. It is easy to see that if we increase <span class="math inline">\(m\)</span> to a very large number (total number of resampling) we end up have our variance as <span class="math inline">\(p\sigma^2\)</span>. That means that unless we have perfect correlation between the trees, we will reduce the variance and as the result getting better predictions.</p>
+</div>
+<div id="out-of-bag-error" class="section level2">
+<h2><span class="header-section-number">4.3</span> Out-Of-Bag error</h2>
+<p>One cool thing about bagging is that it comes with almost a free cross validation built in! Remember that when we do resampling, each time, some of our samples will not be selected for modelling. If we have not too few samples, we can use those samples to estimate what is so called, out-of-bag error. For example, imagine that we have a dataset with 5 samples (<span class="math inline">\(x_1,x_2,x_3,x_4,x_5\)</span>) samples. We decide to do decision trees with bagging and 3 resampling. First we select subsample of the data (<span class="math inline">\(x_1,x_2,x_2,x_4,x_4\)</span>) and do a decision tree (<span class="math inline">\(T_1\)</span>). Please not that we did not select <span class="math inline">\(x_3\)</span> and <span class="math inline">\(x_5\)</span>. We now do another tree (<span class="math inline">\(T_2\)</span>) and we select these samples to do that: (<span class="math inline">\(x_1,x_2,x_2,x_2,x_2\)</span>). For the last time, we do <span class="math inline">\(T_3\)</span> and select (<span class="math inline">\(x_1,x_2,x_2,x_3,x_4\)</span>). To calculate out of bag error, we look at <span class="math inline">\(x_3\)</span>, we see that we did not use this sample in <span class="math inline">\(T_1\)</span> and <span class="math inline">\(T_2\)</span> so we use these two trees to predict the class of this sample. We now look at <span class="math inline">\(x_4\)</span> and see that we have not used this sample in <span class="math inline">\(T_2\)</span>. We use <span class="math inline">\(T_2\)</span> to predict <span class="math inline">\(x_4\)</span>. Finally, we see that <span class="math inline">\(X_5\)</span> has not been used in any of the trees, then we used all the trees to predict <span class="math inline">\(x_5\)</span>. So we have tree samples predicted by the trees that have never seen these samples giving us an estimated cross-validation measure even without doing cross validation! Given, enough samples, out of bag error will be close to 3-fold cross validation.</p>
+</div>
+<div id="application" class="section level2">
+<h2><span class="header-section-number">4.4</span> Application</h2>
+<p>In R use can use among many packages, <code>ipred</code> together with <code>rpart</code> package to perform bagging.</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="bagging.html#cb68-1"></a><span class="kw">library</span>(ipred)</span>
+<span id="cb68-2"><a href="bagging.html#cb68-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb68-3"><a href="bagging.html#cb68-3"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb68-4"><a href="bagging.html#cb68-4"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb68-5"><a href="bagging.html#cb68-5"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb68-6"><a href="bagging.html#cb68-6"></a></span>
+<span id="cb68-7"><a href="bagging.html#cb68-7"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb68-8"><a href="bagging.html#cb68-8"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb68-9"><a href="bagging.html#cb68-9"></a></span>
+<span id="cb68-10"><a href="bagging.html#cb68-10"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb68-11"><a href="bagging.html#cb68-11"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb68-12"><a href="bagging.html#cb68-12"></a></span>
+<span id="cb68-13"><a href="bagging.html#cb68-13"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
+<span id="cb68-14"><a href="bagging.html#cb68-14"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
+<span id="cb68-15"><a href="bagging.html#cb68-15"></a></span>
+<span id="cb68-16"><a href="bagging.html#cb68-16"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb68-17"><a href="bagging.html#cb68-17"></a>bagged_model &lt;-<span class="st"> </span><span class="kw">bagging</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">nbagg=</span><span class="dv">100</span>)</span>
+<span id="cb68-18"><a href="bagging.html#cb68-18"></a></span>
+<span id="cb68-19"><a href="bagging.html#cb68-19"></a></span>
+<span id="cb68-20"><a href="bagging.html#cb68-20"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb68-21"><a href="bagging.html#cb68-21"></a>tree_model &lt;-<span class="st"> </span><span class="kw">rpart</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,</span>
+<span id="cb68-22"><a href="bagging.html#cb68-22"></a>   <span class="dt">method=</span><span class="st">&quot;class&quot;</span>)</span>
+<span id="cb68-23"><a href="bagging.html#cb68-23"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb68-24"><a href="bagging.html#cb68-24"></a>tree_model&lt;-<span class="st"> </span><span class="kw">prune</span>(tree_model, <span class="dt">cp=</span>   tree_model<span class="op">$</span>cptable[<span class="kw">which.min</span>(tree_model<span class="op">$</span>cptable[,<span class="st">&quot;xerror&quot;</span>]),<span class="st">&quot;CP&quot;</span>])</span>
+<span id="cb68-25"><a href="bagging.html#cb68-25"></a></span>
+<span id="cb68-26"><a href="bagging.html#cb68-26"></a>acc_bagging&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(bagged_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb68-27"><a href="bagging.html#cb68-27"></a></span>
+<span id="cb68-28"><a href="bagging.html#cb68-28"></a>acc_tree&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(tree_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb68-29"><a href="bagging.html#cb68-29"></a></span>
+<span id="cb68-30"><a href="bagging.html#cb68-30"></a></span>
+<span id="cb68-31"><a href="bagging.html#cb68-31"></a></span>
+<span id="cb68-32"><a href="bagging.html#cb68-32"></a>confMatrix_bagging&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb68-33"><a href="bagging.html#cb68-33"></a>confMatrix_tree&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb68-34"><a href="bagging.html#cb68-34"></a></span>
+<span id="cb68-35"><a href="bagging.html#cb68-35"></a></span>
+<span id="cb68-36"><a href="bagging.html#cb68-36"></a></span>
+<span id="cb68-37"><a href="bagging.html#cb68-37"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
+<span id="cb68-38"><a href="bagging.html#cb68-38"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>))</span>
+<span id="cb68-39"><a href="bagging.html#cb68-39"></a></span>
+<span id="cb68-40"><a href="bagging.html#cb68-40"></a>plot_data<span class="op">$</span>Color=<span class="ot">NA</span></span>
+<span id="cb68-41"><a href="bagging.html#cb68-41"></a>plot_data<span class="op">$</span>Color[plot_data<span class="op">$</span>x<span class="op">==</span>plot_data<span class="op">$</span>y]&lt;-<span class="st">&quot;red&quot;</span></span>
+<span id="cb68-42"><a href="bagging.html#cb68-42"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb68-43"><a href="bagging.html#cb68-43"></a></span>
+<span id="cb68-44"><a href="bagging.html#cb68-44"></a><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(Method,<span class="dt">fill=</span>Method)) <span class="op">+</span></span>
+<span id="cb68-45"><a href="bagging.html#cb68-45"></a><span class="st">    </span><span class="kw">geom_bar</span>(<span class="kw">aes</span>(<span class="dt">y =</span> value),</span>
+<span id="cb68-46"><a href="bagging.html#cb68-46"></a>             <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span><span class="co">#, position = &quot;dodge&quot;</span></span>
+<span id="cb68-47"><a href="bagging.html#cb68-47"></a>             ) <span class="op">+</span></span>
+<span id="cb68-48"><a href="bagging.html#cb68-48"></a><span class="st">    </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="dv">-5</span>, <span class="dt">label =</span> value,<span class="dt">color=</span>Method)) <span class="op">+</span></span>
+<span id="cb68-49"><a href="bagging.html#cb68-49"></a><span class="st">    </span><span class="kw">facet_grid</span>(x <span class="op">~</span><span class="st"> </span>y, <span class="dt">switch =</span> <span class="st">&quot;y&quot;</span>) <span class="op">+</span></span>
+<span id="cb68-50"><a href="bagging.html#cb68-50"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;&quot;</span>,</span>
+<span id="cb68-51"><a href="bagging.html#cb68-51"></a>         <span class="dt">y =</span> <span class="st">&quot;Predicted class&quot;</span>,</span>
+<span id="cb68-52"><a href="bagging.html#cb68-52"></a>         <span class="dt">x =</span> <span class="st">&quot;True class&quot;</span>) <span class="op">+</span></span>
+<span id="cb68-53"><a href="bagging.html#cb68-53"></a><span class="st">    </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb68-54"><a href="bagging.html#cb68-54"></a><span class="st">   </span><span class="kw">geom_rect</span>(<span class="dt">data=</span>plot_data, <span class="kw">aes</span>(<span class="dt">fill=</span>Color), <span class="dt">xmin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">xmax=</span><span class="ot">Inf</span>, <span class="dt">ymin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">ymax=</span><span class="ot">Inf</span>, <span class="dt">alpha=</span><span class="fl">0.095</span>)<span class="op">+</span></span>
+<span id="cb68-55"><a href="bagging.html#cb68-55"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
+<span id="cb68-56"><a href="bagging.html#cb68-56"></a><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
+<span id="cb68-57"><a href="bagging.html#cb68-57"></a><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_blank</span>(),<span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">color =</span> , <span class="dt">fill =</span> <span class="ot">NA</span>, <span class="dt">size =</span> <span class="dv">1</span>),</span>
+<span id="cb68-58"><a href="bagging.html#cb68-58"></a>          <span class="dt">axis.text.y =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb68-59"><a href="bagging.html#cb68-59"></a>          <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>),</span>
+<span id="cb68-60"><a href="bagging.html#cb68-60"></a>          <span class="dt">axis.ticks =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb68-61"><a href="bagging.html#cb68-61"></a>          <span class="dt">strip.text.y =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">0</span>),</span>
+<span id="cb68-62"><a href="bagging.html#cb68-62"></a>          <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>))</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups33"></span>
+<img src="_main_files/figure-html/fig-groups33-1.png" alt="Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correctl classification" width="1440" />
+<p class="caption">
+Figure 4.2: Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correctl classification
+</p>
+</div>
+<p>The above plot shows the performance of both models in classification. The observed (true) classes of predicted samples are on <span class="math inline">\(x\)</span> axis and the predicted class are on <span class="math inline">\(y\)</span> axis. Let’s give one example to clarify how to interpret this plot. We take the first column which is for samples with classes of AD. We see that bagging classified 27 correctly to AD whereas the normal tree has assigned 30 to AD. Both of these methods has assign two of the AD samples wrongly to control. No samples have been classified to FTD. Bagging has wrongly predicted 3 AD to be MCI/ADConverter and finally both these methods wrongly predicted 4 AD to be MCI/non-ADConverter. Similarly we can interpret the other columns. In general, we have accuracy of 0.69 for the normal tree and accuracy of 0.74 for bagging. Bagging performs a bit better. One interesting obvervation here is the MCI/ADConverter. These samples are persons who were suspected to have AD but they did not show the molecular signature at the time of sampling. However, later on, these samples were diagnosed to have AD. Interestingly, our models assign 8 of these samples as AD so correctly predicting the future without even knowing about it!</p>
+<p>That was it for bagging. I guess we already noticed that simply doing bootstrapping does not ensure we significantly reduce the variance. Random forest will try to address this problem.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="dectr.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="random-forest.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf", "_main.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
