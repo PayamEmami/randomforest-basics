@@ -543,29 +543,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="bias-variance" class="section level2">
 <h2><span class="header-section-number">4.1</span> Bias-variance</h2>
 <p>Let’s first think about the overfitting problem we went through before.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="bagging.html#cb38-1"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb38-2"><a href="bagging.html#cb38-2"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
-<span id="cb38-3"><a href="bagging.html#cb38-3"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(limited_data<span class="op">$</span>p_tau),<span class="dv">50</span>,<span class="dt">replace =</span> F)</span>
-<span id="cb38-4"><a href="bagging.html#cb38-4"></a></span>
-<span id="cb38-5"><a href="bagging.html#cb38-5"></a>limited_data4_training&lt;-limited_data[<span class="op">-</span>testing_index,]</span>
-<span id="cb38-6"><a href="bagging.html#cb38-6"></a>limited_data4_testing&lt;-limited_data[testing_index,]</span>
-<span id="cb38-7"><a href="bagging.html#cb38-7"></a></span>
-<span id="cb38-8"><a href="bagging.html#cb38-8"></a></span>
-<span id="cb38-9"><a href="bagging.html#cb38-9"></a>lw1 &lt;-<span class="st"> </span><span class="kw">loess</span>(t_tau <span class="op">~</span><span class="st"> </span>p_tau,<span class="dt">data=</span>limited_data4_training,<span class="dt">span =</span> <span class="fl">0.1</span>)</span>
-<span id="cb38-10"><a href="bagging.html#cb38-10"></a>cor1&lt;-<span class="kw">cor</span>(limited_data4_testing<span class="op">$</span>t_tau,<span class="kw">predict</span>(lw1,limited_data4_testing<span class="op">$</span>p_tau),<span class="dt">use =</span> <span class="st">&quot;p&quot;</span>)<span class="op">^</span><span class="dv">2</span></span>
-<span id="cb38-11"><a href="bagging.html#cb38-11"></a></span>
-<span id="cb38-12"><a href="bagging.html#cb38-12"></a>j &lt;-<span class="st"> </span><span class="kw">order</span>(limited_data4_training<span class="op">$</span>p_tau)</span>
-<span id="cb38-13"><a href="bagging.html#cb38-13"></a><span class="kw">plot</span>(limited_data4_training<span class="op">$</span>p_tau,limited_data4_training<span class="op">$</span>t_tau,<span class="dt">xlab =</span> <span class="st">&quot;p-tau&quot;</span>,<span class="dt">ylab =</span> <span class="st">&quot;t-tau&quot;</span>,<span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;R2:&quot;</span>, <span class="kw">round</span>(cor1,<span class="dt">digits =</span> <span class="dv">2</span>)))</span>
-<span id="cb38-14"><a href="bagging.html#cb38-14"></a></span>
-<span id="cb38-15"><a href="bagging.html#cb38-15"></a><span class="kw">lines</span>(limited_data4_training<span class="op">$</span>p_tau[j],lw1<span class="op">$</span>fitted[j],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">lwd=</span><span class="dv">3</span>)</span>
-<span id="cb38-16"><a href="bagging.html#cb38-16"></a></span>
-<span id="cb38-17"><a href="bagging.html#cb38-17"></a></span>
-<span id="cb38-18"><a href="bagging.html#cb38-18"></a></span>
-<span id="cb38-19"><a href="bagging.html#cb38-19"></a>lw1 &lt;-<span class="st"> </span><span class="kw">loess</span>(t_tau <span class="op">~</span><span class="st"> </span>p_tau,<span class="dt">data=</span>limited_data4_training,<span class="dt">span =</span> <span class="fl">0.6</span>)</span>
-<span id="cb38-20"><a href="bagging.html#cb38-20"></a>cor2&lt;-<span class="kw">cor</span>(limited_data4_testing<span class="op">$</span>t_tau,<span class="kw">predict</span>(lw1,limited_data4_testing<span class="op">$</span>p_tau),<span class="dt">use =</span> <span class="st">&quot;p&quot;</span>)<span class="op">^</span><span class="dv">2</span></span>
-<span id="cb38-21"><a href="bagging.html#cb38-21"></a><span class="kw">plot</span>(limited_data4_training<span class="op">$</span>p_tau,limited_data4_training<span class="op">$</span>t_tau,<span class="dt">xlab =</span> <span class="st">&quot;p-tau&quot;</span>,<span class="dt">ylab =</span> <span class="st">&quot;t-tau&quot;</span>,<span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;R2:&quot;</span>, <span class="kw">round</span>(cor2,<span class="dt">digits =</span> <span class="dv">2</span>)))</span>
-<span id="cb38-22"><a href="bagging.html#cb38-22"></a>j &lt;-<span class="st"> </span><span class="kw">order</span>(limited_data4_training<span class="op">$</span>p_tau)</span>
-<span id="cb38-23"><a href="bagging.html#cb38-23"></a><span class="kw">lines</span>(limited_data4_training<span class="op">$</span>p_tau[j],lw1<span class="op">$</span>fitted[j],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">lwd=</span><span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="bagging.html#cb37-1"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb37-2"><a href="bagging.html#cb37-2"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb37-3"><a href="bagging.html#cb37-3"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(limited_data<span class="op">$</span>p_tau),<span class="dv">50</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb37-4"><a href="bagging.html#cb37-4"></a></span>
+<span id="cb37-5"><a href="bagging.html#cb37-5"></a>limited_data4_training&lt;-limited_data[<span class="op">-</span>testing_index,]</span>
+<span id="cb37-6"><a href="bagging.html#cb37-6"></a>limited_data4_testing&lt;-limited_data[testing_index,]</span>
+<span id="cb37-7"><a href="bagging.html#cb37-7"></a></span>
+<span id="cb37-8"><a href="bagging.html#cb37-8"></a></span>
+<span id="cb37-9"><a href="bagging.html#cb37-9"></a>lw1 &lt;-<span class="st"> </span><span class="kw">loess</span>(t_tau <span class="op">~</span><span class="st"> </span>p_tau,<span class="dt">data=</span>limited_data4_training,<span class="dt">span =</span> <span class="fl">0.1</span>)</span>
+<span id="cb37-10"><a href="bagging.html#cb37-10"></a>cor1&lt;-<span class="kw">cor</span>(limited_data4_testing<span class="op">$</span>t_tau,<span class="kw">predict</span>(lw1,limited_data4_testing<span class="op">$</span>p_tau),<span class="dt">use =</span> <span class="st">&quot;p&quot;</span>)<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb37-11"><a href="bagging.html#cb37-11"></a></span>
+<span id="cb37-12"><a href="bagging.html#cb37-12"></a>j &lt;-<span class="st"> </span><span class="kw">order</span>(limited_data4_training<span class="op">$</span>p_tau)</span>
+<span id="cb37-13"><a href="bagging.html#cb37-13"></a><span class="kw">plot</span>(limited_data4_training<span class="op">$</span>p_tau,limited_data4_training<span class="op">$</span>t_tau,<span class="dt">xlab =</span> <span class="st">&quot;p-tau&quot;</span>,<span class="dt">ylab =</span> <span class="st">&quot;t-tau&quot;</span>,<span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;R2:&quot;</span>, <span class="kw">round</span>(cor1,<span class="dt">digits =</span> <span class="dv">2</span>)))</span>
+<span id="cb37-14"><a href="bagging.html#cb37-14"></a></span>
+<span id="cb37-15"><a href="bagging.html#cb37-15"></a><span class="kw">lines</span>(limited_data4_training<span class="op">$</span>p_tau[j],lw1<span class="op">$</span>fitted[j],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">lwd=</span><span class="dv">3</span>)</span>
+<span id="cb37-16"><a href="bagging.html#cb37-16"></a></span>
+<span id="cb37-17"><a href="bagging.html#cb37-17"></a></span>
+<span id="cb37-18"><a href="bagging.html#cb37-18"></a></span>
+<span id="cb37-19"><a href="bagging.html#cb37-19"></a>lw1 &lt;-<span class="st"> </span><span class="kw">loess</span>(t_tau <span class="op">~</span><span class="st"> </span>p_tau,<span class="dt">data=</span>limited_data4_training,<span class="dt">span =</span> <span class="fl">0.6</span>)</span>
+<span id="cb37-20"><a href="bagging.html#cb37-20"></a>cor2&lt;-<span class="kw">cor</span>(limited_data4_testing<span class="op">$</span>t_tau,<span class="kw">predict</span>(lw1,limited_data4_testing<span class="op">$</span>p_tau),<span class="dt">use =</span> <span class="st">&quot;p&quot;</span>)<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb37-21"><a href="bagging.html#cb37-21"></a><span class="kw">plot</span>(limited_data4_training<span class="op">$</span>p_tau,limited_data4_training<span class="op">$</span>t_tau,<span class="dt">xlab =</span> <span class="st">&quot;p-tau&quot;</span>,<span class="dt">ylab =</span> <span class="st">&quot;t-tau&quot;</span>,<span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;R2:&quot;</span>, <span class="kw">round</span>(cor2,<span class="dt">digits =</span> <span class="dv">2</span>)))</span>
+<span id="cb37-22"><a href="bagging.html#cb37-22"></a>j &lt;-<span class="st"> </span><span class="kw">order</span>(limited_data4_training<span class="op">$</span>p_tau)</span>
+<span id="cb37-23"><a href="bagging.html#cb37-23"></a><span class="kw">lines</span>(limited_data4_training<span class="op">$</span>p_tau[j],lw1<span class="op">$</span>fitted[j],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">lwd=</span><span class="dv">3</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups32"></span>
 <img src="_main_files/figure-html/fig-groups32-1.png" alt="plot of p-tau vs t-tau using two models. The model on the left has span of 0.1 and the model on the right has the span of 0.6." width="1440" />
 <p class="caption">
@@ -593,68 +593,68 @@ Figure 4.1: plot of p-tau vs t-tau using two models. The model on the left has s
 <div id="application" class="section level2">
 <h2><span class="header-section-number">4.4</span> Application</h2>
 <p>In R use can use among many packages, <code>ipred</code> together with <code>rpart</code> package to perform bagging.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="bagging.html#cb39-1"></a><span class="kw">library</span>(ipred)</span>
-<span id="cb39-2"><a href="bagging.html#cb39-2"></a><span class="kw">library</span>(rpart)</span>
-<span id="cb39-3"><a href="bagging.html#cb39-3"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb39-4"><a href="bagging.html#cb39-4"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
-<span id="cb39-5"><a href="bagging.html#cb39-5"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
-<span id="cb39-6"><a href="bagging.html#cb39-6"></a></span>
-<span id="cb39-7"><a href="bagging.html#cb39-7"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
-<span id="cb39-8"><a href="bagging.html#cb39-8"></a>limited_data4_testing&lt;-data[testing_index,]</span>
-<span id="cb39-9"><a href="bagging.html#cb39-9"></a></span>
-<span id="cb39-10"><a href="bagging.html#cb39-10"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
-<span id="cb39-11"><a href="bagging.html#cb39-11"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
-<span id="cb39-12"><a href="bagging.html#cb39-12"></a></span>
-<span id="cb39-13"><a href="bagging.html#cb39-13"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
-<span id="cb39-14"><a href="bagging.html#cb39-14"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
-<span id="cb39-15"><a href="bagging.html#cb39-15"></a></span>
-<span id="cb39-16"><a href="bagging.html#cb39-16"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
-<span id="cb39-17"><a href="bagging.html#cb39-17"></a>bagged_model &lt;-<span class="st"> </span><span class="kw">bagging</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">nbagg=</span><span class="dv">100</span>)</span>
-<span id="cb39-18"><a href="bagging.html#cb39-18"></a></span>
-<span id="cb39-19"><a href="bagging.html#cb39-19"></a></span>
-<span id="cb39-20"><a href="bagging.html#cb39-20"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
-<span id="cb39-21"><a href="bagging.html#cb39-21"></a>tree_model &lt;-<span class="st"> </span><span class="kw">rpart</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,</span>
-<span id="cb39-22"><a href="bagging.html#cb39-22"></a>   <span class="dt">method=</span><span class="st">&quot;class&quot;</span>)</span>
-<span id="cb39-23"><a href="bagging.html#cb39-23"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
-<span id="cb39-24"><a href="bagging.html#cb39-24"></a>tree_model&lt;-<span class="st"> </span><span class="kw">prune</span>(tree_model, <span class="dt">cp=</span>   tree_model<span class="op">$</span>cptable[<span class="kw">which.min</span>(tree_model<span class="op">$</span>cptable[,<span class="st">&quot;xerror&quot;</span>]),<span class="st">&quot;CP&quot;</span>])</span>
-<span id="cb39-25"><a href="bagging.html#cb39-25"></a></span>
-<span id="cb39-26"><a href="bagging.html#cb39-26"></a>acc_bagging&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(bagged_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
-<span id="cb39-27"><a href="bagging.html#cb39-27"></a></span>
-<span id="cb39-28"><a href="bagging.html#cb39-28"></a>acc_tree&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(tree_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
-<span id="cb39-29"><a href="bagging.html#cb39-29"></a></span>
-<span id="cb39-30"><a href="bagging.html#cb39-30"></a></span>
-<span id="cb39-31"><a href="bagging.html#cb39-31"></a></span>
-<span id="cb39-32"><a href="bagging.html#cb39-32"></a>confMatrix_bagging&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
-<span id="cb39-33"><a href="bagging.html#cb39-33"></a>confMatrix_tree&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
-<span id="cb39-34"><a href="bagging.html#cb39-34"></a></span>
-<span id="cb39-35"><a href="bagging.html#cb39-35"></a></span>
-<span id="cb39-36"><a href="bagging.html#cb39-36"></a></span>
-<span id="cb39-37"><a href="bagging.html#cb39-37"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
-<span id="cb39-38"><a href="bagging.html#cb39-38"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>))</span>
-<span id="cb39-39"><a href="bagging.html#cb39-39"></a></span>
-<span id="cb39-40"><a href="bagging.html#cb39-40"></a>plot_data<span class="op">$</span>Color=<span class="ot">NA</span></span>
-<span id="cb39-41"><a href="bagging.html#cb39-41"></a>plot_data<span class="op">$</span>Color[plot_data<span class="op">$</span>x<span class="op">==</span>plot_data<span class="op">$</span>y]&lt;-<span class="st">&quot;red&quot;</span></span>
-<span id="cb39-42"><a href="bagging.html#cb39-42"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb39-43"><a href="bagging.html#cb39-43"></a></span>
-<span id="cb39-44"><a href="bagging.html#cb39-44"></a><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(Method,<span class="dt">fill=</span>Method)) <span class="op">+</span></span>
-<span id="cb39-45"><a href="bagging.html#cb39-45"></a><span class="st">    </span><span class="kw">geom_bar</span>(<span class="kw">aes</span>(<span class="dt">y =</span> value),</span>
-<span id="cb39-46"><a href="bagging.html#cb39-46"></a>             <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span><span class="co">#, position = &quot;dodge&quot;</span></span>
-<span id="cb39-47"><a href="bagging.html#cb39-47"></a>             ) <span class="op">+</span></span>
-<span id="cb39-48"><a href="bagging.html#cb39-48"></a><span class="st">    </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="dv">-5</span>, <span class="dt">label =</span> value,<span class="dt">color=</span>Method)) <span class="op">+</span></span>
-<span id="cb39-49"><a href="bagging.html#cb39-49"></a><span class="st">    </span><span class="kw">facet_grid</span>(x <span class="op">~</span><span class="st"> </span>y, <span class="dt">switch =</span> <span class="st">&quot;y&quot;</span>) <span class="op">+</span></span>
-<span id="cb39-50"><a href="bagging.html#cb39-50"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;&quot;</span>,</span>
-<span id="cb39-51"><a href="bagging.html#cb39-51"></a>         <span class="dt">y =</span> <span class="st">&quot;Predicted class&quot;</span>,</span>
-<span id="cb39-52"><a href="bagging.html#cb39-52"></a>         <span class="dt">x =</span> <span class="st">&quot;True class&quot;</span>) <span class="op">+</span></span>
-<span id="cb39-53"><a href="bagging.html#cb39-53"></a><span class="st">    </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
-<span id="cb39-54"><a href="bagging.html#cb39-54"></a><span class="st">   </span><span class="kw">geom_rect</span>(<span class="dt">data=</span>plot_data, <span class="kw">aes</span>(<span class="dt">fill=</span>Color), <span class="dt">xmin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">xmax=</span><span class="ot">Inf</span>, <span class="dt">ymin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">ymax=</span><span class="ot">Inf</span>, <span class="dt">alpha=</span><span class="fl">0.095</span>)<span class="op">+</span></span>
-<span id="cb39-55"><a href="bagging.html#cb39-55"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
-<span id="cb39-56"><a href="bagging.html#cb39-56"></a><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
-<span id="cb39-57"><a href="bagging.html#cb39-57"></a><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_blank</span>(),<span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">color =</span> , <span class="dt">fill =</span> <span class="ot">NA</span>, <span class="dt">size =</span> <span class="dv">1</span>),</span>
-<span id="cb39-58"><a href="bagging.html#cb39-58"></a>          <span class="dt">axis.text.y =</span> <span class="kw">element_blank</span>(),</span>
-<span id="cb39-59"><a href="bagging.html#cb39-59"></a>          <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>),</span>
-<span id="cb39-60"><a href="bagging.html#cb39-60"></a>          <span class="dt">axis.ticks =</span> <span class="kw">element_blank</span>(),</span>
-<span id="cb39-61"><a href="bagging.html#cb39-61"></a>          <span class="dt">strip.text.y =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">0</span>),</span>
-<span id="cb39-62"><a href="bagging.html#cb39-62"></a>          <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="bagging.html#cb38-1"></a><span class="kw">library</span>(ipred)</span>
+<span id="cb38-2"><a href="bagging.html#cb38-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb38-3"><a href="bagging.html#cb38-3"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb38-4"><a href="bagging.html#cb38-4"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb38-5"><a href="bagging.html#cb38-5"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb38-6"><a href="bagging.html#cb38-6"></a></span>
+<span id="cb38-7"><a href="bagging.html#cb38-7"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb38-8"><a href="bagging.html#cb38-8"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb38-9"><a href="bagging.html#cb38-9"></a></span>
+<span id="cb38-10"><a href="bagging.html#cb38-10"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb38-11"><a href="bagging.html#cb38-11"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb38-12"><a href="bagging.html#cb38-12"></a></span>
+<span id="cb38-13"><a href="bagging.html#cb38-13"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
+<span id="cb38-14"><a href="bagging.html#cb38-14"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
+<span id="cb38-15"><a href="bagging.html#cb38-15"></a></span>
+<span id="cb38-16"><a href="bagging.html#cb38-16"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb38-17"><a href="bagging.html#cb38-17"></a>bagged_model &lt;-<span class="st"> </span><span class="kw">bagging</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">nbagg=</span><span class="dv">100</span>)</span>
+<span id="cb38-18"><a href="bagging.html#cb38-18"></a></span>
+<span id="cb38-19"><a href="bagging.html#cb38-19"></a></span>
+<span id="cb38-20"><a href="bagging.html#cb38-20"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb38-21"><a href="bagging.html#cb38-21"></a>tree_model &lt;-<span class="st"> </span><span class="kw">rpart</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,</span>
+<span id="cb38-22"><a href="bagging.html#cb38-22"></a>   <span class="dt">method=</span><span class="st">&quot;class&quot;</span>)</span>
+<span id="cb38-23"><a href="bagging.html#cb38-23"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb38-24"><a href="bagging.html#cb38-24"></a>tree_model&lt;-<span class="st"> </span><span class="kw">prune</span>(tree_model, <span class="dt">cp=</span>   tree_model<span class="op">$</span>cptable[<span class="kw">which.min</span>(tree_model<span class="op">$</span>cptable[,<span class="st">&quot;xerror&quot;</span>]),<span class="st">&quot;CP&quot;</span>])</span>
+<span id="cb38-25"><a href="bagging.html#cb38-25"></a></span>
+<span id="cb38-26"><a href="bagging.html#cb38-26"></a>acc_bagging&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(bagged_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb38-27"><a href="bagging.html#cb38-27"></a></span>
+<span id="cb38-28"><a href="bagging.html#cb38-28"></a>acc_tree&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(tree_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb38-29"><a href="bagging.html#cb38-29"></a></span>
+<span id="cb38-30"><a href="bagging.html#cb38-30"></a></span>
+<span id="cb38-31"><a href="bagging.html#cb38-31"></a></span>
+<span id="cb38-32"><a href="bagging.html#cb38-32"></a>confMatrix_bagging&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb38-33"><a href="bagging.html#cb38-33"></a>confMatrix_tree&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb38-34"><a href="bagging.html#cb38-34"></a></span>
+<span id="cb38-35"><a href="bagging.html#cb38-35"></a></span>
+<span id="cb38-36"><a href="bagging.html#cb38-36"></a></span>
+<span id="cb38-37"><a href="bagging.html#cb38-37"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
+<span id="cb38-38"><a href="bagging.html#cb38-38"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>))</span>
+<span id="cb38-39"><a href="bagging.html#cb38-39"></a></span>
+<span id="cb38-40"><a href="bagging.html#cb38-40"></a>plot_data<span class="op">$</span>Color=<span class="ot">NA</span></span>
+<span id="cb38-41"><a href="bagging.html#cb38-41"></a>plot_data<span class="op">$</span>Color[plot_data<span class="op">$</span>x<span class="op">==</span>plot_data<span class="op">$</span>y]&lt;-<span class="st">&quot;red&quot;</span></span>
+<span id="cb38-42"><a href="bagging.html#cb38-42"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb38-43"><a href="bagging.html#cb38-43"></a></span>
+<span id="cb38-44"><a href="bagging.html#cb38-44"></a><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(Method,<span class="dt">fill=</span>Method)) <span class="op">+</span></span>
+<span id="cb38-45"><a href="bagging.html#cb38-45"></a><span class="st">    </span><span class="kw">geom_bar</span>(<span class="kw">aes</span>(<span class="dt">y =</span> value),</span>
+<span id="cb38-46"><a href="bagging.html#cb38-46"></a>             <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span><span class="co">#, position = &quot;dodge&quot;</span></span>
+<span id="cb38-47"><a href="bagging.html#cb38-47"></a>             ) <span class="op">+</span></span>
+<span id="cb38-48"><a href="bagging.html#cb38-48"></a><span class="st">    </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="dv">-5</span>, <span class="dt">label =</span> value,<span class="dt">color=</span>Method)) <span class="op">+</span></span>
+<span id="cb38-49"><a href="bagging.html#cb38-49"></a><span class="st">    </span><span class="kw">facet_grid</span>(x <span class="op">~</span><span class="st"> </span>y, <span class="dt">switch =</span> <span class="st">&quot;y&quot;</span>) <span class="op">+</span></span>
+<span id="cb38-50"><a href="bagging.html#cb38-50"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;&quot;</span>,</span>
+<span id="cb38-51"><a href="bagging.html#cb38-51"></a>         <span class="dt">y =</span> <span class="st">&quot;Predicted class&quot;</span>,</span>
+<span id="cb38-52"><a href="bagging.html#cb38-52"></a>         <span class="dt">x =</span> <span class="st">&quot;True class&quot;</span>) <span class="op">+</span></span>
+<span id="cb38-53"><a href="bagging.html#cb38-53"></a><span class="st">    </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb38-54"><a href="bagging.html#cb38-54"></a><span class="st">   </span><span class="kw">geom_rect</span>(<span class="dt">data=</span>plot_data, <span class="kw">aes</span>(<span class="dt">fill=</span>Color), <span class="dt">xmin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">xmax=</span><span class="ot">Inf</span>, <span class="dt">ymin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">ymax=</span><span class="ot">Inf</span>, <span class="dt">alpha=</span><span class="fl">0.095</span>)<span class="op">+</span></span>
+<span id="cb38-55"><a href="bagging.html#cb38-55"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
+<span id="cb38-56"><a href="bagging.html#cb38-56"></a><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
+<span id="cb38-57"><a href="bagging.html#cb38-57"></a><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_blank</span>(),<span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">color =</span> , <span class="dt">fill =</span> <span class="ot">NA</span>, <span class="dt">size =</span> <span class="dv">1</span>),</span>
+<span id="cb38-58"><a href="bagging.html#cb38-58"></a>          <span class="dt">axis.text.y =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb38-59"><a href="bagging.html#cb38-59"></a>          <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>),</span>
+<span id="cb38-60"><a href="bagging.html#cb38-60"></a>          <span class="dt">axis.ticks =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb38-61"><a href="bagging.html#cb38-61"></a>          <span class="dt">strip.text.y =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">0</span>),</span>
+<span id="cb38-62"><a href="bagging.html#cb38-62"></a>          <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>))</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups33"></span>
 <img src="_main_files/figure-html/fig-groups33-1.png" alt="Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correctl classification" width="1440" />
 <p class="caption">
