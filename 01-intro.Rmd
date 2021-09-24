@@ -1611,7 +1611,11 @@ Both mean decrease in accuracy (left plot) and impurity base (right plot) are pl
 There are many packages for random forest. We have been using `randomForest` package in R that does a decent job and is fast enough for most of the applications. There are other implementation that you can checkout such as `ranger` that is even faster. We here go through `randomForest` package briefly. 
 
 ### Data
-Our data has to be in a data.frame where feature are in the columns and samples in the rows. The categorical variables should preferebly be `factor` and you should have a column for your response variable. You can then use `formula` capability of R to easily run randomForest: `randomForest::randomForest(group ~ ., data = limited_data4_training)`. This essentially says that our data is sitting in a data frame which has a called named `group`. The dot in from of tilde (`~`) tell the formula the use all other columns (except group) for modeling the data.
+Our data has to be in a data.frame where feature are in the columns and samples in the rows. The categorical variables should preferebly be `factor` and you should have a column for your response variable. You can then use `formula` capability of R to easily run randomForest: `randomForest::randomForest(group ~ ., data = limited_data4_training)`. This essentially says that our data is sitting in a data frame which has a called named `group`. The dot in from of tilde (`~`) tell the formula the use all other columns (except group) for modeling the data. This is how our data look like:
 
+```{r}
+head(limited_data4_training)
+```
 
+You can set various parameters in `randomForest` but probabl the most relevant ones are `mtry`, `ntree` and `importance`. We have already covered all of these and in one command you can run `randomForest::randomForest(group ~ ., data = limited_data4_training,mtry=5,ntree=100)`. 
 
