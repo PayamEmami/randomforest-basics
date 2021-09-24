@@ -37,6 +37,8 @@ install.packages("mltools")
 install.packages("tree")
 install.packages("rfUtilities")
 install.packages("reshape")
+install.packages("gridBase")
+install.packages("DiagrammeR")
 
 
 
@@ -79,7 +81,7 @@ readr::write_lines(htmlhead, path = "header.html")
 
 We will also use a dataset in this chapter. The data set contains the expression measure of 4 clinical variables, age and gender for 206 samples. Samples are from people with Alzheimer's disease (AD), frontotemporal Dementia (FTD), two groups of mild cognitive impairment (MCI), and non-demnated controls. We will both the full dataset and also limited one (only AD and controls). 
 
-```{r}
+```{r,message=FALSE,warning=FALSE,error=FALSE}
 # read the raw data
 data<-read.csv("data/data.csv",sep = ";",
                stringsAsFactors = F,check.names = F,
