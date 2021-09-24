@@ -1,3 +1,4 @@
+fig:fig-termin
 fig:fig-groups1
 fig:fig-groups2
 fig:fig-groups3
@@ -34,6 +35,8 @@ fig:fig-groups33
 fig:fig-groups34
 fig:fig-groups35
 fig:fig-groups36
+fig:fig-groups37
+fig:fig-groups38
 prerequisites
 intro
 dectr
@@ -57,3 +60,4 @@ feature-importance-by-permutation
 feature-importance-by-impurity
 how-to-use-random-forest-in-r
 data
+summary

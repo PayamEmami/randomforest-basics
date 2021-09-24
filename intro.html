@@ -517,6 +517,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="5.3.1" data-path="random-forest.html"><a href="random-forest.html#data"><i class="fa fa-check"></i><b>5.3.1</b> Data</a></li>
 </ul></li>
 </ul></li>
+<li class="chapter" data-level="6" data-path="summary.html"><a href="summary.html"><i class="fa fa-check"></i><b>6</b> Summary</a></li>
 <li class="divider"></li>
 <li>Payam Emami ( <li><a href="https://www.nbis.se/">National Bioinformatics Infrastructure Sweden</a></li>)</li>
 
@@ -540,8 +541,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="intro" class="section level1">
 <h1><span class="header-section-number">2</span> Introduction</h1>
 <p>In this chapter, we are going to learn about RandomForest for supervised classification and regression.</p>
-<p>As you probably remember, supervised learning refers to methodologies that use some prior information about the data points (e.g. samples, patients) to create a way to connect that prior information to the data using some kind model.
-In this context, classification deals with the situation where that prior information is of qualitative form. In this case the example would be having a set of samples where half of them have a disease and the other half don’t. Given this example, the objective is to find a way to say who has the disease and who does not. The previous example was only about two groups but classification can be applied on any number of groups. In regression setting, our prior information is continuous (numerical). In this case, our aim is to figure out a way of connecting the data pattern with the numbers.</p>
+<p>As you probably remember, supervised learning refers to methodologies that use some prior information about the data points (e.g. samples, patients) to create a way to connect that prior information to the data using some kind of model.
+In this context, classification deals with the situation where that prior information is of qualitative form. In this case, the example would be having a set of samples where half of them have a disease and the other half don’t. Given this example, the objective is to find a way to say who has the disease and who does not. The previous example was only about two groups but classification can be applied to any number of groups. In a regression setting, our prior information is continuous (numerical). In this case, our aim is to figure out a way of connecting the data pattern with the numbers.</p>
 <p>Let’s agree from now that you want to show our data with <span class="math inline">\(X\)</span> in which our samples are in the rows and our variables or measurements are in columns. We will also show our prior information with <span class="math inline">\(Y\)</span>. So as described above, we want to come up with a way to map our <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span>:</p>
 <p><span class="math display">\[X=f(X)\]</span></p>
 <p>This basically says we are after a function <span class="math inline">\(f\)</span> that can get <span class="math inline">\(X\)</span> (our data) and output <span class="math inline">\(Y\)</span> (predictions). There are many methods for finding such a mapping. Linear/logistic regression, Neural Networks and Support Vector Machines are examples of such methods. RandomForest algorithm can also be considered in this category. However, RandomForest does not directly model <span class="math inline">\(f\)</span> in a mathematical sense but rather come up with <span class="math inline">\(f\)</span> using a series of segmentation as we will see soon.</p>
