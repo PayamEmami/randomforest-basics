@@ -1,0 +1,98 @@
+--- 
+title: "Classification and Regression by RandomForest"
+author: "Payam Emami"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+link-citations: yes
+description: "This is a short tutorial on how RandomForest works"
+output:
+  bookdown::html_document2:
+    includes:
+      in_header: header.html
+  bookdown::gitbook:
+    includes:
+      in_header: header.html
+---
+
+# Prerequisites
+
+In order to run the code in this chapter, you will need to install a number of packages. The packages are listed below. The recommended way of installing the packages is through BioManager. 
+
+The **bookdown** package can be installed from CRAN or Github:
+```{r htmlTemp3, echo=FALSE, eval=TRUE}
+codejs <- readr::read_lines("js/codefolding.js")
+collapsejs <- readr::read_lines("js/collapse.js")
+transitionjs <- readr::read_lines("js/transition.js")
+
+htmlhead <- 
+  paste('
+<script>',
+paste(transitionjs, collapse = "\n"),
+'</script>
+<script>',
+paste(collapsejs, collapse = "\n"),
+'</script>
+<script>',
+paste(codejs, collapse = "\n"),
+'</script>
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+.row { display: flex; }
+.collapse { display: none; }
+.in { display:block }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("show" === "hide");
+});
+</script>
+', sep = "\n")
+
+readr::write_lines(htmlhead, path = "header.html")
+```
+
+```{r eval=FALSE,each=FALSE,message=FALSE,warning=FALSE,error=FALSE}
+
+# Install packages
+install.packages("bookdown")
+install.packages("ranger")
+install.packages("plotrix")
+install.packages("formatR")
+install.packages("heplots")
+install.packages("ipred")
+install.packages("rpart")
+install.packages("randomForest")
+# rpart
+# load packages
+#library(scatterplot3d)
+library(plotrix)
+
+
+```
+
+We will also use a dataset in this chapter. The data set contains the expression measure of 4 clinical variables, age and gender for 206 samples. Samples are from people with Alzheimer's disease (AD), frontotemporal Dementia (FTD), two groups of mild cognitive impairment (MCI), and non-demnated controls. We will both the full dataset and also limited one (only AD and controls). 
+
+```{r}
+# read the raw data
+data<-read.csv("data/data.csv",sep = ";",
+               stringsAsFactors = F,check.names = F,
+               colClasses = c("numeric","character","numeric","numeric","numeric","numeric","numeric","character"))
+# remove the index row
+data<-data[,-1]
+data$group[data$group=="non-demented controls"]<-"control"
+# limit to AD and controls
+limited_data<-data[data$group%in%c("AD","control"),]
+
+
+```
+
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```
+
+
