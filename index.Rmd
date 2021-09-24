@@ -20,6 +20,30 @@ output:
 In order to run the code in this chapter, you will need to install a number of packages. The packages are listed below. The recommended way of installing the packages is through BioManager. 
 
 The **bookdown** package can be installed from CRAN or Github:
+
+```{r eval=TRUE,each=FALSE,message=FALSE,warning=FALSE,error=FALSE}
+
+# Install packages
+install.packages("bookdown")
+install.packages("formatR")
+install.packages("heplots")
+install.packages("ipred")
+install.packages("rpart")
+install.packages("randomForest")
+install.packages("readr")
+install.packages("ggplot2")
+install.packages("cowplot")
+install.packages("mltools")
+install.packages("tree")
+install.packages("rfUtilities")
+install.packages("reshape")
+
+
+
+
+
+```
+
 ```{r htmlTemp3, echo=FALSE, eval=TRUE}
 codejs <- readr::read_lines("js/codefolding.js")
 collapsejs <- readr::read_lines("js/collapse.js")
@@ -52,24 +76,6 @@ $(document).ready(function () {
 readr::write_lines(htmlhead, path = "header.html")
 ```
 
-```{r eval=FALSE,each=FALSE,message=FALSE,warning=FALSE,error=FALSE}
-
-# Install packages
-install.packages("bookdown")
-install.packages("ranger")
-install.packages("plotrix")
-install.packages("formatR")
-install.packages("heplots")
-install.packages("ipred")
-install.packages("rpart")
-install.packages("randomForest")
-# rpart
-# load packages
-#library(scatterplot3d)
-library(plotrix)
-
-
-```
 
 We will also use a dataset in this chapter. The data set contains the expression measure of 4 clinical variables, age and gender for 206 samples. Samples are from people with Alzheimer's disease (AD), frontotemporal Dementia (FTD), two groups of mild cognitive impairment (MCI), and non-demnated controls. We will both the full dataset and also limited one (only AD and controls). 
 

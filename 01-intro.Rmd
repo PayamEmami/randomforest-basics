@@ -1613,3 +1613,5 @@ There are many packages for random forest. We have been using `randomForest` pac
 ### Data
 Our data has to be in a data.frame where feature are in the columns and samples in the rows. The categorical variables should preferebly be `factor` and you should have a column for your response variable. You can then use `formula` capability of R to easily run randomForest: `randomForest::randomForest(group ~ ., data = limited_data4_training)`. This essentially says that our data is sitting in a data frame which has a called named `group`. The dot in from of tilde (`~`) tell the formula the use all other columns (except group) for modeling the data.
 
+
+
