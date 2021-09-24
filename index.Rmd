@@ -21,7 +21,7 @@ In order to run the code in this chapter, you will need to install a number of p
 
 The **bookdown** package can be installed from CRAN or Github:
 
-```{r eval=TRUE,each=FALSE,message=FALSE,warning=FALSE,error=FALSE}
+```{r eval=F,each=FALSE,message=FALSE,warning=FALSE,error=FALSE}
 
 # Install packages
 install.packages("bookdown")

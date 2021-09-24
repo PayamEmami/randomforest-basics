@@ -1619,3 +1619,21 @@ head(limited_data4_training)
 
 You can set various parameters in `randomForest` but probabl the most relevant ones are `mtry`, `ntree` and `importance`. We have already covered all of these and in one command you can run `randomForest::randomForest(group ~ ., data = limited_data4_training,mtry=5,ntree=100)`. 
 
+```{r}
+
+
+set.seed(20)
+testing_index<-sample(1:length(data$p_tau),100,replace = F)
+
+limited_data4_training<-data[-testing_index,]
+limited_data4_testing<-data[testing_index,]
+
+limited_data4_training$group<-as.factor(limited_data4_training$group)
+limited_data4_training$gender<-as.factor(limited_data4_training$gender)
+
+rf_model<-randomForest::randomForest(group ~ ., data = limited_data4_training,ntree=100,importance=T)
+print(rf_model)
+
+```
+
+For doing prediction, we will use `predict` function. 
