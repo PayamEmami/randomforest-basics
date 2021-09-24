@@ -46,7 +46,7 @@ install.packages("DiagrammeR")
 
 ```
 
-```{r htmlTemp3, echo=FALSE, eval=TRUE}
+```{r htmlTemp3, echo=FALSE, eval=TRUE,message=FALSE,warning=FALSE,error=FALSE,include=FALSE}
 codejs <- readr::read_lines("js/codefolding.js")
 collapsejs <- readr::read_lines("js/collapse.js")
 transitionjs <- readr::read_lines("js/transition.js")
