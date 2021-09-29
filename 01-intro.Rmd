@@ -7,14 +7,14 @@ editor_options:
 ---
 # Introduction {#intro}
 
-In this chapter, we are going to learn about RandomForest for supervised classification and regression.
+In this chapter, we are going to learn about random forest for supervised classification and regression.
 
 As you probably remember, supervised learning refers to methodologies that use some prior information about the data points (e.g. samples, patients) to create a way to connect that prior information to the data using some kind of model. 
 In this context, classification deals with the situation where that prior information is of qualitative form. In this case, the example would be having a set of samples where half of them have a disease and the other half don't. Given this example, the objective is to find a way to say who has the disease and who does not. The previous example was only about two groups but classification can be applied to any number of groups. In a regression setting, our prior information is continuous (numerical). In this case, our aim is to figure out a way of connecting the data pattern with the numbers.
 
 Let's agree from now that you want to show our data with $X$ in which our samples are in the rows and our variables or measurements are in columns. We will also show our prior information with $Y$. So as described above, we want to come up with a way to map our $X$ to $Y$:
 
-$$X=f(X)$$
+$$Y=f(X)$$
 
 This basically says we are after a function $f$ that can get $X$ (our data) and output $Y$ (predictions). There are many methods for finding such a mapping. Linear/logistic regression, Neural Networks and Support Vector Machines are examples of such methods. RandomForest algorithm can also be considered in this category. However, RandomForest does not directly model $f$ in a mathematical sense but rather come up with $f$ using a series of segmentation as we will see soon.
 
@@ -46,7 +46,7 @@ graph <- create_graph(nodes_df = nodes, attr_theme = "tb",
 render_graph(graph)
 ```
 
-Each circle is a called a node and each line is called an edge. The very first node in top of the tree is called a root node (A). Nodes that are not root but are have out going connections are called child node (B,C,F). The nodes at the bottom of the tree are called leaf nodes or terminal nodes. We tend to say that node B is child of node A because there is incoming connection from A to B. The same applies to C. Similarly, we say A is the parent of B and C. The same naming applies throughout the tree. For example H is a leaf node that is the child of F. Finally, we sometime say that A has been split to B and C which obviously means it has two child nodes. That was it. Let's continue to see what trees are!
+Each circle is a called a node and each line is called an edge. The very first node in top of the tree is called a root node (A). Nodes that are not root but  have out going connections are called child node (B,C,F). The nodes at the bottom of the tree are called leaf nodes or terminal nodes whereas the nodes in the middle of the tree are called internal nodes. We tend to say that node B is child of node A because there is incoming connection from A to B. The same applies to C. Similarly, we say A is the parent of B and C. The same naming applies throughout the tree. For example H is a leaf node that is the child of F. Finally, we sometime say that A has been split to B and C which obviously means it has two child nodes. That was it. Let's continue to see what trees are!
 
 ## Intuition
 
@@ -61,10 +61,10 @@ variableIndex<-"abeta"
 variableIndex2<-"t_tau"
 # plot the data for both of the variables
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
-legend("topleft",legend = paste("Group",levels(as.factor(limited_data$group))),
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
+legend("topleft",legend = levels(as.factor(limited_data$group)),
        col=as.factor(levels(as.factor(limited_data$group))),
-       pch=1)
+       pch=as.factor(levels(as.factor(limited_data$group))))
 
 ```
 
@@ -77,10 +77,9 @@ variableIndex<-"abeta"
 variableIndex2<-"t_tau"
 # plot the data for both of the variables
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
-legend("topleft",legend = paste("Group",levels(as.factor(limited_data$group))),
-       col=as.factor(levels(as.factor(limited_data$group))),
-       pch=1)
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
+legend("topleft",legend = levels(as.factor(limited_data$group)),
+       col=as.factor(levels(as.factor(limited_data$group))),pch=as.factor(levels(as.factor(limited_data$group))))
 abline(v=250,col="red")
 
 ```
@@ -94,10 +93,9 @@ variableIndex<-"abeta"
 variableIndex2<-"t_tau"
 # plot the data for both of the variables
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
-legend("topleft",legend = paste("Group",levels(as.factor(limited_data$group))),
-       col=as.factor(levels(as.factor(limited_data$group))),
-       pch=1)
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
+legend("topleft",legend = levels(as.factor(limited_data$group)),
+       col=as.factor(levels(as.factor(limited_data$group))),pch=as.factor(levels(as.factor(limited_data$group))))
 abline(v=610,col="red",lwd=3)
 
 ```
@@ -115,17 +113,17 @@ library(grid)      ## <-- My addition
 library(gridBase)  ## <-- My addition
 layout(matrix(c(0,1,0,2,0,3), 2, 3, byrow = TRUE))
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
 usr1 <- par("usr")
 vps1 <- do.call(vpStack, baseViewports())
 abline(v=610,col="red",lwd=3)
 plot(limited_data[limited_data$abeta<610,variableIndex],limited_data[limited_data$abeta<610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta<610,]$group),main="abeta<610")
+    col=as.factor(limited_data[limited_data$abeta<610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta<610,]$group)),main="abeta<610")
 usr2 <- par("usr")
 vps2 <- do.call(vpStack, baseViewports())
 
 plot(limited_data[limited_data$abeta>=610,variableIndex],limited_data[limited_data$abeta>=610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta>=610,]$group),main="abeta>=610")
+    col=as.factor(limited_data[limited_data$abeta>=610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta>=610,]$group)),main="abeta>=610")
 
 vps3 <- do.call(vpStack, baseViewports())
 
@@ -184,7 +182,7 @@ So we can conclude that the data is a bit cleaner or purer with respect to the g
 par(mfrow=c(1,1))
 
 plot(limited_data[limited_data$abeta<610,variableIndex],limited_data[limited_data$abeta<610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta<610,]$group),main="abeta<610")
+    col=as.factor(limited_data[limited_data$abeta<610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta<610,]$group)),main="abeta<610")
 
 
 ```
@@ -220,7 +218,7 @@ honestly, it's difficult to separate AD from control in t-tau but we might have 
 par(mfrow=c(1,1))
 
 plot(limited_data[limited_data$abeta<610,variableIndex],limited_data[limited_data$abeta<610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta<610,]$group),main="abeta<610")
+    col=as.factor(limited_data[limited_data$abeta<610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta<610,]$group)),main="abeta<610")
 abline(v=480,col="green",lwd=3)
 
 ```
@@ -244,30 +242,30 @@ layout(matrix(c(0,0,0,1,0,0,0,
 
 limited_data2<-limited_data[limited_data$abeta<610,]
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
 usr1 <- par("usr")
 vps1 <- do.call(vpStack, baseViewports())
 abline(v=610,col="red",lwd=3)
 plot(limited_data[limited_data$abeta<610,variableIndex],limited_data[limited_data$abeta<610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta<610,]$group),main="abeta<610")
+    col=as.factor(limited_data[limited_data$abeta<610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta<610,]$group)),main="abeta<610")
 usr2 <- par("usr")
 vps2 <- do.call(vpStack, baseViewports())
 abline(v=480,col="green",lwd=3)
 plot(limited_data[limited_data$abeta>=610,variableIndex],limited_data[limited_data$abeta>=610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta>=610,]$group),main="abeta>=610")
+    col=as.factor(limited_data[limited_data$abeta>=610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta>=610,]$group)),main="abeta>=610")
 
 vps3 <- do.call(vpStack, baseViewports())
 
 
 
 plot(limited_data2[limited_data2$abeta<480,variableIndex],limited_data2[limited_data2$abeta<480,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data2[limited_data2$abeta<480,]$group),main="abeta<480")
+    col=as.factor(limited_data2[limited_data2$abeta<480,]$group),pch=as.numeric(as.factor(limited_data2[limited_data2$abeta<480,]$group)),main="abeta<480")
 
 vps4 <- do.call(vpStack, baseViewports())
 
 
 plot(limited_data2[limited_data2$abeta>=480,variableIndex],limited_data2[limited_data2$abeta>=480,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data2[limited_data2$abeta>=480,]$group),main="abeta>=480")
+    col=as.factor(limited_data2[limited_data2$abeta>=480,]$group),pch=as.numeric(as.factor(limited_data2[limited_data2$abeta>=480,]$group)),main="abeta>=480")
 
 vps5 <- do.call(vpStack, baseViewports())
 
@@ -302,7 +300,7 @@ We can now continue with the right subgroup (abeta>=610) similar to the left sub
 par(mfrow=c(1,1))
 
 plot(limited_data[limited_data$abeta>=610,variableIndex],limited_data[limited_data$abeta>=610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta>=610,]$group),main="abeta<610")
+    col=as.factor(limited_data[limited_data$abeta>=610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta>=610,]$group)),main="abeta<610")
 abline(h=475,col="blue",lwd=2)
 
 ```
@@ -325,43 +323,43 @@ layout(matrix(c(0,0,0,1,0,0,0,
 limited_data2<-limited_data[limited_data$abeta<610,]
 limited_data3<-limited_data[limited_data$abeta>=610,]
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
 usr1 <- par("usr")
 vps1 <- do.call(vpStack, baseViewports())
 abline(v=610,col="red",lwd=3)
 plot(limited_data[limited_data$abeta<610,variableIndex],limited_data[limited_data$abeta<610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta<610,]$group),main="abeta<610")
+    col=as.factor(limited_data[limited_data$abeta<610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta<610,]$group)),main="abeta<610")
 usr2 <- par("usr")
 vps2 <- do.call(vpStack, baseViewports())
 abline(v=480,col="green",lwd=3)
 plot(limited_data[limited_data$abeta>=610,variableIndex],limited_data[limited_data$abeta>=610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta>=610,]$group),main="abeta>=610")
+    col=as.factor(limited_data[limited_data$abeta>=610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta>=610,]$group)),main="abeta>=610")
 
 vps3 <- do.call(vpStack, baseViewports())
 abline(h=475,col="blue",lwd=3)
 
 
 plot(limited_data2[limited_data2$abeta<480,variableIndex],limited_data2[limited_data2$abeta<480,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data2[limited_data2$abeta<480,]$group),main="abeta<480")
+    col=as.factor(limited_data2[limited_data2$abeta<480,]$group),pch=as.numeric(as.factor(limited_data2[limited_data2$abeta<480,]$group)),main="abeta<480")
 
 vps4 <- do.call(vpStack, baseViewports())
 
 
 plot(limited_data2[limited_data2$abeta>=480,variableIndex],limited_data2[limited_data2$abeta>=480,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data2[limited_data2$abeta>=480,]$group),main="abeta>=480")
+    col=as.factor(limited_data2[limited_data2$abeta>=480,]$group),pch=as.numeric(as.factor(limited_data2[limited_data2$abeta>=480,]$group)),main="abeta>=480")
 
 vps5 <- do.call(vpStack, baseViewports())
 
 
 
 plot(limited_data3[limited_data3$t_tau<475,variableIndex],limited_data3[limited_data3$t_tau<475,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=2,main="t-tau<480")
+    col=2,pch=2,main="t-tau<480")
 
 vps6 <- do.call(vpStack, baseViewports())
 
 
 plot(limited_data3[limited_data3$t_tau>=475,variableIndex],limited_data3[limited_data3$t_tau>=475,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data3[limited_data3$t_tau>=475,]$group),main="t-tau>=480")
+    col=as.factor(limited_data3[limited_data3$t_tau>=475,]$group),pch=as.numeric(as.factor(limited_data3[limited_data3$t_tau>=475,]$group)),main="t-tau>=480")
 
 vps7 <- do.call(vpStack, baseViewports())
 
@@ -481,7 +479,7 @@ grid.text("Control",x = unit(0.5, "npc"),y=unit(-0.25, "npc"),vp=vps7,gp = gpar(
 ```
 
 
-To do the classification, we just need to follow the rules we have derived in the previous steps. At the very beginning (the root of the tree), we used $A\beta=610$, on the left-hand side we used $a\beta=480$ and on the right-hand side, we used $t tau=475$. So for a new sample, we first test where its $A\beta$ is lower than 610, if yes, it goes to the left of the tree otherwise it will go to the right side. If for example, it goes to the left side, we again test $A\beta$ and send the sample to the suitable leaf. The label of the leaf will show the classification of this new sample. The decision rules are shown in figure \@ref(fig:fig-groups13).
+To do the classification, we just need to follow the rules we have derived in the previous steps. At the very beginning (the root of the tree), we used $A\beta=610$, on the left-hand side we used $A\beta=480$ and on the right-hand side, we used $t-tau=475$. So for a new sample, we first test where its $A\beta$ is lower than 610, if yes, it goes to the left of the tree otherwise it will go to the right side. If for example, it goes to the left side, we again test $A\beta$ and send the sample to the suitable leaf. The label of the leaf will show the classification of this new sample. The decision rules are shown in figure \@ref(fig:fig-groups13).
 
 ```{r fig-groups13, fig.cap='The example of rules derived for the tree', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
@@ -509,13 +507,13 @@ In the beginning, we said that decision trees segments our data. We can have a l
 
 par(mfrow=c(1,1))
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
 abline(v=610,col="red",lwd=3)
 abline(v=480,col="green",lwd=3)
 lines(x=c(610,10000),y=c(475,610),col="blue",lwd=3)
 legend("topleft",legend = levels(as.factor(limited_data$group)),
        col=as.factor(levels(as.factor(limited_data$group))),
-       pch=1)
+       pch=as.factor(levels(as.factor(limited_data$group))))
 
 text(300,1000,"AD",font=4)
 text(550,1000,"AD",font=4)
@@ -536,10 +534,10 @@ variableIndex<-"abeta"
 variableIndex2<-"t_tau"
 # plot the data for both of the variables
 plot(data[,variableIndex],data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(data$group))
+    col=as.factor(data$group),pch=as.numeric(as.factor(data$group)))
 legend("topleft",legend = levels(as.factor(data$group)),
        col=as.factor(levels(as.factor(data$group))),
-       pch=1)
+       pch=as.factor(levels(as.factor(data$group))))
 
 ```
 
@@ -557,14 +555,14 @@ variableIndex2<-"t_tau"
 variableIndex2<-"p_tau"
 # plot the data for both of the variables
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
 legend("topleft",legend = levels(as.factor(limited_data$group)),
        col=as.factor(levels(as.factor(limited_data$group))),
-       pch=1)
+       pch=as.factor(levels(as.factor(limited_data$group))))
 
 ```
 
-What is the probability of selecting an AD sample just by chance? Well, that is simple, we could just take the number of AD cases and divided by the total number of cases $p(AD)=\frac{\text{number of AD}}{\text{total number of cases}}=$`r round(sum(limited_data$group=="AD")/length(limited_data$group),2)`. Gini index ask what is the chance of randomly picking two data points from the same group? Well, if our draws are independent, then it's simply squared what we have calculated before so $p(AD)^2$! Now we have two classes, so we have to do this for the control as well: $p(control)=\frac{\text{number of controls}}{\text{total number of cases}}=$`r round(sum(limited_data$group=="control")/length(limited_data$group),2)`. We can now combine these two just by summing them up, giving us the probability of selecting two random samples with the same group: $p=p(AD)^2+p(control)^2$. What is the probability of selecting two points with different groups? That is simply $1-(p(AD)^2+p(control)^2)$. This is Gini impurity. It just tells the probability of classifying a random point incorrectly. We can extend this to any number of classes using:
+What is the probability of selecting an AD sample just by chance? Well, that is simple, we could just take the number of AD cases and divided by the total number of cases $p(AD)=\frac{\text{number of AD}}{\text{total number of cases}}=$`r round(sum(limited_data$group=="AD")/length(limited_data$group),2)`. Gini index ask what is the chance of randomly picking two data points from the same group? Well, if our draws are independent, then it's simply squared what we have calculated before so $p(AD)^2$. Now we have two classes, so we have to do this for the control as well: $p(control)=\frac{\text{number of controls}}{\text{total number of cases}}=$`r round(sum(limited_data$group=="control")/length(limited_data$group),2)`. We can now combine these two just by summing them up, giving us the probability of selecting two random samples with the same group: $p=p(AD)^2+p(control)^2$. What is the probability of selecting two points with different groups? That is simply $1-(p(AD)^2+p(control)^2)$. This is Gini impurity. It just tells the probability of classifying a random point incorrectly. We can extend this to any number of classes using:
 
 $$\text{Gini impurity}=1-\sum_{i}^{C}{p(i)^2}$$
 Where $i$ is a group or a class of observation. But how we are going to use this in decision trees?
@@ -585,17 +583,17 @@ library(grid)      ## <-- My addition
 library(gridBase)  ## <-- My addition
 layout(matrix(c(0,1,0,2,0,3), 2, 3, byrow = TRUE))
 plot(limited_data[,variableIndex],limited_data[,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data$group))
+    col=as.factor(limited_data$group),pch=as.numeric(as.factor(limited_data$group)))
 usr1 <- par("usr")
 vps1 <- do.call(vpStack, baseViewports())
 abline(v=610,col="red",lwd=3)
 plot(limited_data[limited_data$abeta<610,variableIndex],limited_data[limited_data$abeta<610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta<610,]$group),main="abeta<610",sub=paste("Gini imputriy =",round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)))
+    col=as.factor(limited_data[limited_data$abeta<610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta<610,]$group)),main="abeta<610",sub=paste("Gini impurity =",round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)))
 usr2 <- par("usr")
 vps2 <- do.call(vpStack, baseViewports())
 
 plot(limited_data[limited_data$abeta>=610,variableIndex],limited_data[limited_data$abeta>=610,variableIndex2],xlab =variableIndex,ylab = variableIndex2,
-    col=as.factor(limited_data[limited_data$abeta>=610,]$group),main="abeta>=610",sub=paste("Gini imputriy =",round(mltools::gini_impurity(limited_data[limited_data$abeta>=610,]$group),2)))
+    col=as.factor(limited_data[limited_data$abeta>=610,]$group),pch=as.numeric(as.factor(limited_data[limited_data$abeta>=610,]$group)),main="abeta>=610",sub=paste("Gini impurity=",round(mltools::gini_impurity(limited_data[limited_data$abeta>=610,]$group),2)))
 
 vps3 <- do.call(vpStack, baseViewports())
 
@@ -610,7 +608,7 @@ grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
 
 ```
 
-Here we split the data at $A\beta=610$ giving us two segments (left and right). Let's start with the left one and calculate its Gini imputriy ($GI_\text{left}=$ `r round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)`) and do the similar thing with the plot on the right ($GI_\text{right}=$ `r round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)`). Now we simply weight this two number by the fraction of the total data in each of the segments. The left plot has `r length(limited_data[limited_data$abeta<610,]$group)` data points so the fraction becomes  $w_\text{left}=$ `r length(limited_data[limited_data$abeta<610,]$group)`/`r length(limited_data$group)`= `r round(length(limited_data[limited_data$abeta<610,]$group)/length(limited_data$group),2)` and the right plot has `r length(limited_data[limited_data$abeta>=610,]$group)` points so the fraction becomes $w_\text{righ}=$ `r length(limited_data[limited_data$abeta>=610,]$group)`/`r length(limited_data$group)`= `r round(length(limited_data[limited_data$abeta>=610,]$group)/length(limited_data$group),2)`. Our final total Gini impurity is calculated as $GI_\text{left}*w_\text{left}+GI_\text{right}*w_\text{right}=$ `r round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)* (length(limited_data[limited_data$abeta<610,]$group)/ length(limited_data$group))+round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)*(round(length(limited_data[limited_data$abeta>=610,]$group)/length(limited_data$group),2))`
+Here we split the data at $A\beta=610$ giving us two segments (left and right). Let's start with the left one and calculate its Gini impurity($GI_\text{left}=$ `r round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)`) and do the similar thing with the plot on the right ($GI_\text{right}=$ `r round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)`). Now we simply weight these two numbers by the fraction of the total data in each of the segments. The left plot has `r length(limited_data[limited_data$abeta<610,]$group)` data points so the fraction becomes  $w_\text{left}=$ `r length(limited_data[limited_data$abeta<610,]$group)`/`r length(limited_data$group)`= `r round(length(limited_data[limited_data$abeta<610,]$group)/length(limited_data$group),2)` and the right plot has `r length(limited_data[limited_data$abeta>=610,]$group)` points so the fraction becomes $w_\text{righ}=$ `r length(limited_data[limited_data$abeta>=610,]$group)`/`r length(limited_data$group)`= `r round(length(limited_data[limited_data$abeta>=610,]$group)/length(limited_data$group),2)`. Our final total Gini impurity is calculated as $GI_\text{left}*w_\text{left}+GI_\text{right}*w_\text{right}=$ `r round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)* (length(limited_data[limited_data$abeta<610,]$group)/ length(limited_data$group))+round(mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group),2)*(round(length(limited_data[limited_data$abeta>=610,]$group)/length(limited_data$group),2))`
 
 Now we have the impurity of the segmentation. The question is how much of impurity we have removed from the original data? We can simply subtract Our original Gini impurity by $GI_\text{left}*w_\text{left}+GI_\text{right}*w_\text{right}=$ so it will become `r mltools::gini_impurity(limited_data$group)-((mltools::gini_impurity(limited_data[limited_data$abeta<610,]$group))* (length(limited_data[limited_data$abeta<610,]$group)/ length(limited_data$group))+(mltools::gini_impurity(limited_data[limited_data$abeta>=610,]$group))*((length(limited_data[limited_data$abeta>=610,]$group)/length(limited_data$group))))`. This is known as Gini Gain. The higher this value, the better the split would be. Here is a little function that does the Gini gain calculation (click on the code button!).
 
@@ -676,9 +674,9 @@ Our goal here is to use $A\beta$ and t-tau to predict MMT scores for individuals
 
 $$MSE=\frac{1}{n}\sum_{i=1}^{n}{(y_i-\bar{y_i})^2}$$
 
-This essentially calculates the squared differences between each of our $y$ and the mean of all the ys ($\bar{y}$). For example, if we want to calculate the MSE of our MMT scores for our *entire* dataset, we can calculate mean our MMSs=`r mean(limited_data$mmt)` then we subtract every single of our MMT scores from this mean and square them. Finally and take the average of this value: `r mean((limited_data$mmt-mean(limited_data$mmt))^2)`
+This essentially calculates the squared differences between each of our $y$ and the mean of all the ys ($\bar{y}$). For example, if we want to calculate the MSE of our MMT scores for our *entire* dataset, we can calculate mean our MMSs=`r mean(limited_data$mmt)` then we subtract every single of our MMT scores from this mean and square them. Finally, we take the average of this value: `r mean((limited_data$mmt-mean(limited_data$mmt))^2)`
 
-Now how to use MSE to build a decision tree? We start by calculating MSE for our entire dataset like we did before: mean((limited_data$mmt-mean(limited_data$mmt))^2)
+Now how to use MSE to build a decision tree? We start by calculating MSE for our entire dataset like we did before: `r mean((limited_data$mmt-mean(limited_data$mmt))^2)`
 We now select a variable, let's say $A\beta$ and split it at some value:
 
 ```{r fig-groups19, fig.cap='The example of two variables measured on a number of samples. The MMT score is shown as a gradient from red (lowest score) to blue (highest score)', fig.align='center',warning=FALSE,message=FALSE}
@@ -1061,7 +1059,7 @@ I will start with the $6$ and calculate $R(6)=(1-\frac{2}{3})\times\frac{3}{20}=
 
 At this stage, we have to introduce our penalty term into $R(T)$ so it becomes:
 $$R_{\alpha}(T)=R(T)+\alpha.|\tilde{T}|$$
-where alpha is our complexity parameter and $|\tilde{T}|$ is the total number of leaf nodes in the tree. What this equation tells us is that, as we grow a bigger and bigger tree with a lot of leaf nodes, our misclassification error rate will increase. We should tune the cost complexity parameter to give us a good minimum $R_{\alpha}(T)$. How how do we tune this? Weakest-Link Cutting is a method for doing that. As the name suggests we will have to identify the "weakest link" subtree in the whole tree and that is given by a subtree which the minimum of 
+where alpha is our complexity parameter and $|\tilde{T}|$ is the total number of leaf nodes in the tree. What this equation tells us is that, as we grow a bigger and bigger tree with a lot of leaf nodes, our misclassification error rate will increase. We should tune the cost complexity parameter to give us a good minimum $R_{\alpha}(T)$. How do we tune this? Weakest-Link Cutting is a method for doing that. As the name suggests we will have to identify the "weakest link" subtree in the whole tree and that is given by a subtree which the minimum of 
 
 $$g(t)\left\{\begin{matrix}\frac{R(t)-R(T_t)}{|\tilde{T}_t|-1}, & t \notin \tilde{T}_t \\ +\infty, & t \in \tilde{T}_t\end{matrix}\right.$$
 
@@ -1178,7 +1176,7 @@ Cross-validation refers to various different ways to estimate whether a statisti
 Let's have a look at an example where we want to predict t-tau based on p-tau:
 
 
-```{r fig-groups28, fig.cap='plot of p-tau vs t-tau. The data that will be used for validation is between the red lines', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
+```{r fig-groups28, fig.cap='plot of p-tau vs t-tau.', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
 plot(limited_data$p_tau,limited_data$t_tau,xlab = "p-tau",ylab = "t-tau")
 
@@ -1337,9 +1335,9 @@ One cool thing about bagging is that it comes with almost a free cross-validatio
 
 ## Application
 
-In R use can use among many packages, `ipred` together with `rpart` package to perform bagging. 
+In R, we can use, `ipred` together with `rpart` package to perform bagging. 
 
-```{r fig-groups33, fig.cap='Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correctl classification', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
+```{r fig-groups33, fig.cap='Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correct classification', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
 library(ipred)
 library(rpart)
@@ -1420,7 +1418,7 @@ Let's say we have a dataset with $N$ number of samples and $p$ number of feature
 
   1. Take a random sample of size $N$ with replacement from the data (similar to bagging).
 
-  2. Now for finding a split, we take a random sample of $k$ variables from $p$ without replacement and use only this subset of variables to find the best split. This is the random part of random forest.
+  2. Now for finding a split, we take a random sample of $k$ variables from $p$ without replacement and use only this subset of variables to find the best split. This is the *random* part of random forest.
 
   3. To further split this tree, repeat step 2 until the tree is large enough.
   
@@ -1434,7 +1432,7 @@ So the only additional component here is focusing on a random subset of our feat
 We are now ready to start coding random forests. We will be used `randomForest` function from `randomForest` package. 
 
 
-```{r fig-groups34, fig.cap='Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correctl classification', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
+```{r fig-groups34, fig.cap='Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correct classification', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
 library(ipred)
 library(rpart)
@@ -1576,7 +1574,7 @@ cowplot::plot_grid(oob_plot,cv_plot,labels = c("A","B"))
 
 ```
 
-In the plot above, we have plotted out of bag error (OOB) and cross validation error (CV) vs `mtry`. In out of bag error (plot A), we see that `mtry`: `r hp_grid[which.min(hp_grid$OOB),"mtry"]` and `ntree`: `r as.numeric(hp_grid[which.min(hp_grid$OOB),"ntree"])` have minimize the error rate: `r as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"])`. In plot B, we present the median error rate of 5-fold cross validation. We see that `mtry`: `r hp_grid[which.min(hp_grid$CV),"mtry"]` and `ntree`: `r as.character(hp_grid[which.min(hp_grid$CV),"ntree"])` have minimize the error rate: `r as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])`. So `r ifelse(as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])>as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"]),"out of bag","cross validation")` has minimize the error rate so we can probably use the parameters suggested by `r ifelse(as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])>as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"]),"out of bag","cross validation")`. In practice however, having too few samples, out of bag is probably more preferable that cross validation. 
+In the plot above, we have plotted out of bag error (OOB) and cross validation error (CV) vs `mtry`. In out of bag error (plot A), we see that `mtry`: `r hp_grid[which.min(hp_grid$OOB),"mtry"]` and `ntree`: `r as.character(hp_grid[which.min(hp_grid$OOB),"ntree"])` have minimize the error rate: `r as.character(hp_grid[which.min(hp_grid$OOB),"OOB"])`. In plot B, we present the median error rate of 5-fold cross validation. We see that `mtry`: `r hp_grid[which.min(hp_grid$CV),"mtry"]` and `ntree`: `r as.character(hp_grid[which.min(hp_grid$CV),"ntree"])` have minimize the error rate: `r as.character(hp_grid[which.min(hp_grid$CV),"CV"])`. So `r ifelse(as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])>as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"]),"out of bag","cross validation")` has minimize the error rate so we can probably use the parameters suggested by `r ifelse(as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])>as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"]),"out of bag","cross validation")`. In practice however, having too few samples, out of bag is probably more preferable that cross validation. 
 
 ## Variable importance
 
@@ -1587,7 +1585,7 @@ Random forests are not only used for doing prediction but they provide a very po
 To calculate the feature importance by permutation, one can use both cross-validation and out of bag errors. Here we focus on out of bag errors:
 
 Let's say that we trained a model $f$ on our data $X$ on response $y$. As we said before, we can calculate out of bag errors (OOB) for this model. Let's call this $OOB^{\ orig}$ and calculate it using an error measure $E$ so: $OOB^{\ orig}=E(y-f(X))$.
-Now, what we do is that for each of the features $i=1,...,p$ We do a random permutation (shuffling) and put it back in the original matrix. Let's call this matrix $X^{perm}_i$. This means all other features are original ones except feature $i$ that has been randomly shuffled. 
+Now, for each of the features $i=1,...,p$, we do a random permutation (shuffling) and put it back in the original matrix. Let's call this matrix $X^{perm}_i$. This means all other features are original ones except feature $i$ that has been randomly shuffled. 
 We can now calculate the out of bag error for this new data $OOB^{\ perm}_i=E(y-f(X^{perm}_i))$. In the last step, we calculate the difference between the original out of bag error vs. the permuted out of bag error: $dif_i=OOB^{\ perm}_i-OOB^{\ orig}$. 
 We do this for all the features, one at a time giving us the list of permuted $OOB^{\ perm}_i ,\ i=1,...,p$.
 In the last step, we normalize this by the standard deviation of  $OOB^{\ perm}$ and sorting by descending order. 
@@ -1602,7 +1600,7 @@ If you remember, we calculate a node Gini impurity by $\text{Gini impurity}=1-\s
 
 $$RI_j=W_j\times IMP_j-W_{left_j}\times IMP_{left_j}-W_{right_j}\times IMP_{right_j}$$
 
-where $W_{j}$ is the weight of the parent node (e.g $\frac{N(j)}{N}$; proportion data coming into node $j$). $W_{left_j}$ is the weight of the left child node of $j$ (see aggregating gini above). Please note that in some implementations $W_j$ has been removed.
+where $W_{j}$ is the weight of the parent node (e.g $\frac{N(j)}{N}$; proportion data coming into node $j$). $W_{left_j}$ is the weight of the left child node $j$ (see aggregating Gini above). Please note that in some implementations $W_j$ has been removed.
 
 Now what we have is the decrease in impurity for each node but we are interested in features not nodes! We define another measure as average feature impurity decrease: 
 
@@ -1612,7 +1610,7 @@ Where $N_i$ is all the nodes where feature $i$ has been used to split the node a
 $$FIMP^{\ norm}_i=\frac{FIMP_i}{\sum_i^p{FIMP_i}}$$
 Finally, as we build multiple trees in random forest, we have to calculate the average feature importance across all the trees:
 
-$$FI_i=\frac{\sum_{i\in trees}{\sum_{j\in features}{FIMP^{\ norm}_{i,j}}}}{|T|}$$
+$$FI_i=\frac{\sum_{j\in trees}{{FIMP^{\ norm}_{i,j}}}}{|T|}$$
 where $FI_i$ is the feature importance of variable $i$, $FIMP^{\ norm}_{i,j}$ is the normalized $FIMP$ for feature $i$ in tree $j$ and $|T|$ is the total number of trees. What the whole thing is telling us is that for each feature in each tree, we calculate the average decrease in impurity, sum it over the trees and normalize it by the number of trees. 
 
 Please note that there are many different implementation feature importance but in principle, most of them are very similar to what we have discussed so far. 
@@ -1710,4 +1708,41 @@ randomForest::varImpPlot(rf_model)
 
 Random forests are extremely powerful algorithms that can be used both for prediction and feature selection. They don't require much data pre-treatment, they are generally robust with respect to scales of the data. They can handle missing values and can be used both for classification and regression. However, trees, in general, can result in very different models if the training data change. So to get a good estimate of feature importance and prediction accuracy it is highly recommended to cross-validate the trees.
 Despite some arguing that random forests do produce 'good' predictions, there are variants that are very powerful and in fact, they were winning many machine learning competitions in many different fields. If you are interested you can look at gradient boosting for decision trees. Like any other modelling technique, random forests are just another algorithm, as a researcher, it is our job to make sure that we use them in a right way. Please always do validation of the model before publishing your results! 
+
+# Exercises
+
+In this section we want to re-analyze a data set from mixOmics package. According to the authors: "The Small Round Blue Cell Tumors (SRBCT) dataset from includes the expression levels of 2,308 genes measured on 63 samples. The samples are classified into four classes as follows: 8 Burkitt Lymphoma (BL), 23 Ewing Sarcoma (EWS), 12 neuroblastoma (NB), and 20 rhabdomyosarcoma (RMS)."
+
+The dataset can be downloaded from here: https://github.com/mixOmicsTeam/mixOmics/raw/master/data/srbct.rda
+
+When downloaded, you can load the data into `R` using the `load` function:
+
+```{r, eval=FALSE}
+load("PATH_TO_FOLDER/srbct.rda")
+```
+
+Please note that, `PATH_TO_FOLDER` *must* be change to the path you downloaded the file into. 
+
+After loading the data, we will have a variable called `srbct` which is a `list` containing the following:
+
+`gene`: a data frame with 63 rows and 2308 columns. The expression levels of 2,308 genes in 63 subjects.
+
+`class`: a class vector containing the class tumor of each individual (4 classes in total).
+
+`gene.name`: a data frame with 2,308 rows and 2 columns containing further information on the gene
+
+We can combine `gene` and `class` into a single data frame using:
+
+```{r, eval=FALSE}
+srbct_data<-data.frame(srbct$gene,class=srbct$class)
+```
+
+We are going to use random forests to find variables that are important for discriminating the 4 classes.
+
+1. Randomly split your data into a training (80 percent of the data) and testing set (20 percent of the data). 
+2. Tune a hyperparameter (`mtry`) of random forest (only on training data)
+3. Fit a random forest model to the training data and find its accuracy (either out of bag error or cross validation. up to you!)
+4. FInd the accuracy of predictiing the test set
+5. Find the top 10 most important genes for discriminating all the classes
+6. What are the top 10 genes for predicting *EWS* class
 
