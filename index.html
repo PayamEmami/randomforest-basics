@@ -4,27 +4,27 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Classification and Regression by RandomForest</title>
-  <meta name="description" content="This is a short tutorial on how RandomForest works" />
+  <title>Classification and Regression by Random Forest</title>
+  <meta name="description" content="This is a short tutorial on how random forest works" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="Classification and Regression by RandomForest" />
+  <meta property="og:title" content="Classification and Regression by Random Forest" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="This is a short tutorial on how RandomForest works" />
+  <meta property="og:description" content="This is a short tutorial on how random forest works" />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Classification and Regression by RandomForest" />
+  <meta name="twitter:title" content="Classification and Regression by Random Forest" />
   
-  <meta name="twitter:description" content="This is a short tutorial on how RandomForest works" />
+  <meta name="twitter:description" content="This is a short tutorial on how random forest works" />
   
 
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-09-24" />
+<meta name="date" content="2021-09-29" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -518,6 +518,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="summary.html"><a href="summary.html"><i class="fa fa-check"></i><b>6</b> Summary</a></li>
+<li class="chapter" data-level="7" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>7</b> Exercises</a></li>
 <li class="divider"></li>
 <li>Payam Emami ( <li><a href="https://www.nbis.se/">National Bioinformatics Infrastructure Sweden</a></li>)</li>
 
@@ -530,7 +531,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by RandomForest</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by Random Forest</a>
           </h1>
         </div>
 
@@ -539,15 +540,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
             <section class="normal" id="section-">
 <div id="header">
-<h1 class="title">Classification and Regression by RandomForest</h1>
+<h1 class="title">Classification and Regression by Random Forest</h1>
 <p class="author"><em>Payam Emami</em></p>
-<p class="date"><em>2021-09-24</em></p>
+<p class="date"><em>2021-09-29</em></p>
 </div>
 <div id="prerequisites" class="section level1">
 <h1><span class="header-section-number">1</span> Prerequisites</h1>
-<p>In order to run the code in this chapter, you will need to install a number of packages. The packages are listed below. The recommended way of installing the packages is through BioManager.</p>
+<p>In order to run the code in this chapter, you will need to install a number of packages. The packages are listed below.</p>
 <p>The <strong>bookdown</strong> package can be installed from CRAN or Github:</p>
-<p>We will also use a dataset in this chapter. The data set contains the expression measure of 4 clinical variables, age and gender for 206 samples. Samples are from people with Alzheimer’s disease (AD), frontotemporal Dementia (FTD), two groups of mild cognitive impairment (MCI), and non-demnated controls. We will both the full dataset and also limited one (only AD and controls). Here is small desciption of the data from the original paper: “This study includes CSF samples from 76 AD patients, 74 mild cognitive impairment (MCI) patients, 11 frontotemporal dementia (FTD) patients, and 45 non-dementia controls. The MCI patients were followed for 4–8 years at 6–12 months intervals and eventually diagnosed with AD (MCI/AD converters) (n=21) or remained at the MCI stage (stable MCI) (n=53)”</p>
+<p>We will also use a dataset in this chapter. The data set contains the expression measure of 4 clinical variables, age and gender for 206 samples. Samples are from people with Alzheimer’s disease (AD), frontotemporal Dementia (FTD), two groups of mild cognitive impairment (MCI), and non-demented controls. We will both the full dataset and also limited one (only AD and controls). Here is small description of the data from the original paper: “This study includes CSF samples from 76 AD patients, 74 mild cognitive impairment (MCI) patients, 11 frontotemporal dementia (FTD) patients, and 45 non-dementia controls. The MCI patients were followed for 4–8 years at 6–12 months intervals and eventually diagnosed with AD (MCI/AD converters) (n=21) or remained at the MCI stage (stable MCI) (n=53)”</p>
 <p>Khoonsari, Payam Emami et al. ‘Improved Differential Diagnosis of Alzheimer’s Disease by Integrating ELISA and Mass Spectrometry-Based Cerebrospinal Fluid Biomarkers’. 1 Jan. 2019 : 639 – 651.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1"></a><span class="co"># read the raw data</span></span>
 <span id="cb1-2"><a href="index.html#cb1-2"></a>data&lt;-<span class="kw">read.csv</span>(<span class="st">&quot;data/data.csv&quot;</span>,<span class="dt">sep =</span> <span class="st">&quot;;&quot;</span>,</span>

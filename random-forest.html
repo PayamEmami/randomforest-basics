@@ -4,27 +4,27 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>5 Random forest | Classification and Regression by RandomForest</title>
-  <meta name="description" content="This is a short tutorial on how RandomForest works" />
+  <title>5 Random forest | Classification and Regression by Random Forest</title>
+  <meta name="description" content="This is a short tutorial on how random forest works" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="5 Random forest | Classification and Regression by RandomForest" />
+  <meta property="og:title" content="5 Random forest | Classification and Regression by Random Forest" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="This is a short tutorial on how RandomForest works" />
+  <meta property="og:description" content="This is a short tutorial on how random forest works" />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="5 Random forest | Classification and Regression by RandomForest" />
+  <meta name="twitter:title" content="5 Random forest | Classification and Regression by Random Forest" />
   
-  <meta name="twitter:description" content="This is a short tutorial on how RandomForest works" />
+  <meta name="twitter:description" content="This is a short tutorial on how random forest works" />
   
 
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-09-24" />
+<meta name="date" content="2021-09-29" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -518,6 +518,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="summary.html"><a href="summary.html"><i class="fa fa-check"></i><b>6</b> Summary</a></li>
+<li class="chapter" data-level="7" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>7</b> Exercises</a></li>
 <li class="divider"></li>
 <li>Payam Emami ( <li><a href="https://www.nbis.se/">National Bioinformatics Infrastructure Sweden</a></li>)</li>
 
@@ -530,7 +531,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by RandomForest</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by Random Forest</a>
           </h1>
         </div>
 
@@ -546,7 +547,7 @@ We said that if we have a large <span class="math inline">\(m\)</span>, we will 
 <p>Let’s say we have a dataset with <span class="math inline">\(N\)</span> number of samples and <span class="math inline">\(p\)</span> number of features. To build a random forest model we do:</p>
 <ol style="list-style-type: decimal">
 <li><p>Take a random sample of size <span class="math inline">\(N\)</span> with replacement from the data (similar to bagging).</p></li>
-<li><p>Now for finding a split, we take a random sample of <span class="math inline">\(k\)</span> variables from <span class="math inline">\(p\)</span> without replacement and use only this subset of variables to find the best split. This is the random part of random forest.</p></li>
+<li><p>Now for finding a split, we take a random sample of <span class="math inline">\(k\)</span> variables from <span class="math inline">\(p\)</span> without replacement and use only this subset of variables to find the best split. This is the <em>random</em> part of random forest.</p></li>
 <li><p>To further split this tree, repeat step 2 until the tree is large enough.</p></li>
 <li><p>Repeat steps 1 to 3 many times to produce more trees. This is the forest part of random forest</p></li>
 <li><p>Similar to bagging, we predict each sample to a final group by a majority vote over the set of trees. For example, if we have 500 trees and 400 of them say sample <span class="math inline">\(x\)</span> is AD, then we use this as the predicted group for the sample <span class="math inline">\(x\)</span>. For regression, we simply take the mean of all the predicted values of all the 500 trees.</p></li>
@@ -623,9 +624,9 @@ We said that if we have a large <span class="math inline">\(m\)</span>, we will 
 <span id="cb39-68"><a href="random-forest.html#cb39-68"></a>          <span class="dt">strip.text.y =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">0</span>),</span>
 <span id="cb39-69"><a href="random-forest.html#cb39-69"></a>          <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>))</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups34"></span>
-<img src="_main_files/figure-html/fig-groups34-1.png" alt="Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correctl classification" width="1440" />
+<img src="_main_files/figure-html/fig-groups34-1.png" alt="Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correct classification" width="1440" />
 <p class="caption">
-Figure 5.1: Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correctl classification
+Figure 5.1: Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correct classification
 </p>
 </div>
 <p>In this case, random forest performs slightly better (accuracy=0.75) than others. Please note that this specific dataset is very small so all the methods are expected to work similarly. Nevertheless, the random forest algorithm is performing fairly good.</p>
@@ -694,7 +695,7 @@ Figure 5.1: Prediction accuracy of normal tree vs. bagging vs. random forest. 
 Figure 5.2: Paramemter tuning for mtry and ntree. Out of bag errors (A) are compared with cross validation (B)
 </p>
 </div>
-<p>In the plot above, we have plotted out of bag error (OOB) and cross validation error (CV) vs <code>mtry</code>. In out of bag error (plot A), we see that <code>mtry</code>: 5 and <code>ntree</code>: 2 have minimize the error rate: 22.64. In plot B, we present the median error rate of 5-fold cross validation. We see that <code>mtry</code>: 4 and <code>ntree</code>: 300 have minimize the error rate: 19.047619. So cross validation has minimize the error rate so we can probably use the parameters suggested by cross validation. In practice however, having too few samples, out of bag is probably more preferable that cross validation.</p>
+<p>In the plot above, we have plotted out of bag error (OOB) and cross validation error (CV) vs <code>mtry</code>. In out of bag error (plot A), we see that <code>mtry</code>: 5 and <code>ntree</code>: 200 have minimize the error rate: 22.64. In plot B, we present the median error rate of 5-fold cross validation. We see that <code>mtry</code>: 4 and <code>ntree</code>: 300 have minimize the error rate: 19.0476190476191. So cross validation has minimize the error rate so we can probably use the parameters suggested by cross validation. In practice however, having too few samples, out of bag is probably more preferable that cross validation.</p>
 </div>
 <div id="variable-importance" class="section level2">
 <h2><span class="header-section-number">5.2</span> Variable importance</h2>
@@ -703,7 +704,7 @@ Figure 5.2: Paramemter tuning for mtry and ntree. Out of bag errors (A) are comp
 <h3><span class="header-section-number">5.2.1</span> Feature importance by permutation</h3>
 <p>To calculate the feature importance by permutation, one can use both cross-validation and out of bag errors. Here we focus on out of bag errors:</p>
 <p>Let’s say that we trained a model <span class="math inline">\(f\)</span> on our data <span class="math inline">\(X\)</span> on response <span class="math inline">\(y\)</span>. As we said before, we can calculate out of bag errors (OOB) for this model. Let’s call this <span class="math inline">\(OOB^{\ orig}\)</span> and calculate it using an error measure <span class="math inline">\(E\)</span> so: <span class="math inline">\(OOB^{\ orig}=E(y-f(X))\)</span>.
-Now, what we do is that for each of the features <span class="math inline">\(i=1,...,p\)</span> We do a random permutation (shuffling) and put it back in the original matrix. Let’s call this matrix <span class="math inline">\(X^{perm}_i\)</span>. This means all other features are original ones except feature <span class="math inline">\(i\)</span> that has been randomly shuffled.
+Now, for each of the features <span class="math inline">\(i=1,...,p\)</span>, we do a random permutation (shuffling) and put it back in the original matrix. Let’s call this matrix <span class="math inline">\(X^{perm}_i\)</span>. This means all other features are original ones except feature <span class="math inline">\(i\)</span> that has been randomly shuffled.
 We can now calculate the out of bag error for this new data <span class="math inline">\(OOB^{\ perm}_i=E(y-f(X^{perm}_i))\)</span>. In the last step, we calculate the difference between the original out of bag error vs. the permuted out of bag error: <span class="math inline">\(dif_i=OOB^{\ perm}_i-OOB^{\ orig}\)</span>.
 We do this for all the features, one at a time giving us the list of permuted <span class="math inline">\(OOB^{\ perm}_i ,\ i=1,...,p\)</span>.
 In the last step, we normalize this by the standard deviation of <span class="math inline">\(OOB^{\ perm}\)</span> and sorting by descending order.</p>
@@ -714,13 +715,13 @@ In the last step, we normalize this by the standard deviation of <span class="ma
 <p>Feature importance by impurity does not take into account the out of bag error or cross-validation but rather asks the question of how much throughout the tree a specific feature has been decreasing the impurity.</p>
 <p>If you remember, we calculate a node Gini impurity by <span class="math inline">\(\text{Gini impurity}=1-\sum_{i}^{C}{p(i)^2}\)</span> and entropy by <span class="math inline">\(\text{Entropy}=1-\sum_{i}^{C}{p(i)log{_2}{p(i)}}\)</span>, for classification and for regression by <span class="math inline">\(MSE=\frac{1}{n}\sum_{i=1}^{n}{(y_i-\bar{y_i})^2}\)</span> or by residual sum of squares. At this stage, no matter what we use, we want to call this <span class="math inline">\(IMP_j\)</span> where <span class="math inline">\(j\)</span> can be any node in the tree. And if you remember, we calculate the weighted removed impurity of a parent node as:</p>
 <p><span class="math display">\[RI_j=W_j\times IMP_j-W_{left_j}\times IMP_{left_j}-W_{right_j}\times IMP_{right_j}\]</span></p>
-<p>where <span class="math inline">\(W_{j}\)</span> is the weight of the parent node (e.g <span class="math inline">\(\frac{N(j)}{N}\)</span>; proportion data coming into node <span class="math inline">\(j\)</span>). <span class="math inline">\(W_{left_j}\)</span> is the weight of the left child node of <span class="math inline">\(j\)</span> (see aggregating gini above). Please note that in some implementations <span class="math inline">\(W_j\)</span> has been removed.</p>
+<p>where <span class="math inline">\(W_{j}\)</span> is the weight of the parent node (e.g <span class="math inline">\(\frac{N(j)}{N}\)</span>; proportion data coming into node <span class="math inline">\(j\)</span>). <span class="math inline">\(W_{left_j}\)</span> is the weight of the left child node <span class="math inline">\(j\)</span> (see aggregating Gini above). Please note that in some implementations <span class="math inline">\(W_j\)</span> has been removed.</p>
 <p>Now what we have is the decrease in impurity for each node but we are interested in features not nodes! We define another measure as average feature impurity decrease:</p>
 <p><span class="math display">\[FIMP_i=\frac{\sum_{j \in N_i}{RI_j}}{\sum_{k \in t}{RI_k}}\]</span>
 Where <span class="math inline">\(N_i\)</span> is all the nodes where feature <span class="math inline">\(i\)</span> has been used to split the node and <span class="math inline">\(t\)</span> is the set of all nodes in the tree. We can then normalize this <span class="math inline">\(FIMP_i\)</span> by the sum of all <span class="math inline">\(FIMP_i\)</span> giving us:</p>
 <p><span class="math display">\[FIMP^{\ norm}_i=\frac{FIMP_i}{\sum_i^p{FIMP_i}}\]</span>
 Finally, as we build multiple trees in random forest, we have to calculate the average feature importance across all the trees:</p>
-<p><span class="math display">\[FI_i=\frac{\sum_{i\in trees}{\sum_{j\in features}{FIMP^{\ norm}_{i,j}}}}{|T|}\]</span>
+<p><span class="math display">\[FI_i=\frac{\sum_{j\in trees}{{FIMP^{\ norm}_{i,j}}}}{|T|}\]</span>
 where <span class="math inline">\(FI_i\)</span> is the feature importance of variable <span class="math inline">\(i\)</span>, <span class="math inline">\(FIMP^{\ norm}_{i,j}\)</span> is the normalized <span class="math inline">\(FIMP\)</span> for feature <span class="math inline">\(i\)</span> in tree <span class="math inline">\(j\)</span> and <span class="math inline">\(|T|\)</span> is the total number of trees. What the whole thing is telling us is that for each feature in each tree, we calculate the average decrease in impurity, sum it over the trees and normalize it by the number of trees.</p>
 <p>Please note that there are many different implementation feature importance but in principle, most of them are very similar to what we have discussed so far.</p>
 <p>We can now have a look at our feature importance in random forest:</p>

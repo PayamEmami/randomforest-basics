@@ -4,27 +4,27 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>2 Introduction | Classification and Regression by RandomForest</title>
-  <meta name="description" content="This is a short tutorial on how RandomForest works" />
+  <title>2 Introduction | Classification and Regression by Random Forest</title>
+  <meta name="description" content="This is a short tutorial on how random forest works" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="2 Introduction | Classification and Regression by RandomForest" />
+  <meta property="og:title" content="2 Introduction | Classification and Regression by Random Forest" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="This is a short tutorial on how RandomForest works" />
+  <meta property="og:description" content="This is a short tutorial on how random forest works" />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="2 Introduction | Classification and Regression by RandomForest" />
+  <meta name="twitter:title" content="2 Introduction | Classification and Regression by Random Forest" />
   
-  <meta name="twitter:description" content="This is a short tutorial on how RandomForest works" />
+  <meta name="twitter:description" content="This is a short tutorial on how random forest works" />
   
 
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-09-24" />
+<meta name="date" content="2021-09-29" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -518,6 +518,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="summary.html"><a href="summary.html"><i class="fa fa-check"></i><b>6</b> Summary</a></li>
+<li class="chapter" data-level="7" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>7</b> Exercises</a></li>
 <li class="divider"></li>
 <li>Payam Emami ( <li><a href="https://www.nbis.se/">National Bioinformatics Infrastructure Sweden</a></li>)</li>
 
@@ -530,7 +531,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by RandomForest</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by Random Forest</a>
           </h1>
         </div>
 
@@ -540,11 +541,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="intro" class="section level1">
 <h1><span class="header-section-number">2</span> Introduction</h1>
-<p>In this chapter, we are going to learn about RandomForest for supervised classification and regression.</p>
+<p>In this chapter, we are going to learn about random forest for supervised classification and regression.</p>
 <p>As you probably remember, supervised learning refers to methodologies that use some prior information about the data points (e.g. samples, patients) to create a way to connect that prior information to the data using some kind of model.
 In this context, classification deals with the situation where that prior information is of qualitative form. In this case, the example would be having a set of samples where half of them have a disease and the other half don’t. Given this example, the objective is to find a way to say who has the disease and who does not. The previous example was only about two groups but classification can be applied to any number of groups. In a regression setting, our prior information is continuous (numerical). In this case, our aim is to figure out a way of connecting the data pattern with the numbers.</p>
 <p>Let’s agree from now that you want to show our data with <span class="math inline">\(X\)</span> in which our samples are in the rows and our variables or measurements are in columns. We will also show our prior information with <span class="math inline">\(Y\)</span>. So as described above, we want to come up with a way to map our <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span>:</p>
-<p><span class="math display">\[X=f(X)\]</span></p>
+<p><span class="math display">\[Y=f(X)\]</span></p>
 <p>This basically says we are after a function <span class="math inline">\(f\)</span> that can get <span class="math inline">\(X\)</span> (our data) and output <span class="math inline">\(Y\)</span> (predictions). There are many methods for finding such a mapping. Linear/logistic regression, Neural Networks and Support Vector Machines are examples of such methods. RandomForest algorithm can also be considered in this category. However, RandomForest does not directly model <span class="math inline">\(f\)</span> in a mathematical sense but rather come up with <span class="math inline">\(f\)</span> using a series of segmentation as we will see soon.</p>
 <p>In order to learn how RandomForest works, we will need to go through a few central topics:</p>
 <ul>

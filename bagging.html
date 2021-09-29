@@ -4,27 +4,27 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>4 Bagging | Classification and Regression by RandomForest</title>
-  <meta name="description" content="This is a short tutorial on how RandomForest works" />
+  <title>4 Bagging | Classification and Regression by Random Forest</title>
+  <meta name="description" content="This is a short tutorial on how random forest works" />
   <meta name="generator" content="bookdown 0.24 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="4 Bagging | Classification and Regression by RandomForest" />
+  <meta property="og:title" content="4 Bagging | Classification and Regression by Random Forest" />
   <meta property="og:type" content="book" />
   
   
-  <meta property="og:description" content="This is a short tutorial on how RandomForest works" />
+  <meta property="og:description" content="This is a short tutorial on how random forest works" />
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="4 Bagging | Classification and Regression by RandomForest" />
+  <meta name="twitter:title" content="4 Bagging | Classification and Regression by Random Forest" />
   
-  <meta name="twitter:description" content="This is a short tutorial on how RandomForest works" />
+  <meta name="twitter:description" content="This is a short tutorial on how random forest works" />
   
 
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-09-24" />
+<meta name="date" content="2021-09-29" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -518,6 +518,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="6" data-path="summary.html"><a href="summary.html"><i class="fa fa-check"></i><b>6</b> Summary</a></li>
+<li class="chapter" data-level="7" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>7</b> Exercises</a></li>
 <li class="divider"></li>
 <li>Payam Emami ( <li><a href="https://www.nbis.se/">National Bioinformatics Infrastructure Sweden</a></li>)</li>
 
@@ -530,7 +531,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <div class="body-inner">
         <div class="book-header" role="navigation">
           <h1>
-            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by RandomForest</a>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Classification and Regression by Random Forest</a>
           </h1>
         </div>
 
@@ -592,7 +593,7 @@ Figure 4.1: plot of p-tau vs t-tau using two models. The model on the left has s
 </div>
 <div id="application" class="section level2">
 <h2><span class="header-section-number">4.4</span> Application</h2>
-<p>In R use can use among many packages, <code>ipred</code> together with <code>rpart</code> package to perform bagging.</p>
+<p>In R, we can use, <code>ipred</code> together with <code>rpart</code> package to perform bagging.</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="bagging.html#cb38-1"></a><span class="kw">library</span>(ipred)</span>
 <span id="cb38-2"><a href="bagging.html#cb38-2"></a><span class="kw">library</span>(rpart)</span>
 <span id="cb38-3"><a href="bagging.html#cb38-3"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
@@ -656,9 +657,9 @@ Figure 4.1: plot of p-tau vs t-tau using two models. The model on the left has s
 <span id="cb38-61"><a href="bagging.html#cb38-61"></a>          <span class="dt">strip.text.y =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">0</span>),</span>
 <span id="cb38-62"><a href="bagging.html#cb38-62"></a>          <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>))</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups33"></span>
-<img src="_main_files/figure-html/fig-groups33-1.png" alt="Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correctl classification" width="1440" />
+<img src="_main_files/figure-html/fig-groups33-1.png" alt="Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correct classification" width="1440" />
 <p class="caption">
-Figure 4.2: Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correctl classification
+Figure 4.2: Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correct classification
 </p>
 </div>
 <p>The above plot shows the performance of both models in classification. The observed (true) classes of predicted samples are on <span class="math inline">\(x\)</span> axis and the predicted class are on <span class="math inline">\(y\)</span> axis. Let’s give one example to clarify how to interpret this plot. We take the first column which is for samples with classes of AD. We see that bagging classified 27 correctly to AD whereas the normal tree has assigned 30 to AD. Both of these methods have assigned two of the AD samples wrongly to control. No samples have been classified as FTD. Bagging has wrongly predicted 3 AD to be MCI/ADConverter and finally both these methods wrongly predicted 4 AD to be MCI/non-ADConverter. Similarly, we can interpret the other columns. In general, we have the accuracy of 0.69 for the normal tree and the accuracy of 0.74 for bagging. Bagging performs a bit better. One interesting observation here is the MCI/ADConverter. These samples are persons who were suspected to have AD but they did not show the molecular signature at the time of sampling. However, later on, these samples were diagnosed to have AD. Interestingly, our models assign 8 of these samples as AD so correctly predicting the future without even knowing about it!</p>

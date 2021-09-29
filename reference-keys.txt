@@ -61,3 +61,4 @@ feature-importance-by-impurity
 how-to-use-random-forest-in-r
 data
 summary
+exercises
