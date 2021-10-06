@@ -24,7 +24,7 @@
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-09-29" />
+<meta name="date" content="2021-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -546,8 +546,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 In this context, classification deals with the situation where that prior information is of qualitative form. In this case, the example would be having a set of samples where half of them have a disease and the other half don’t. Given this example, the objective is to find a way to say who has the disease and who does not. The previous example was only about two groups but classification can be applied to any number of groups. In a regression setting, our prior information is continuous (numerical). In this case, our aim is to figure out a way of connecting the data pattern with the numbers.</p>
 <p>Let’s agree from now that you want to show our data with <span class="math inline">\(X\)</span> in which our samples are in the rows and our variables or measurements are in columns. We will also show our prior information with <span class="math inline">\(Y\)</span>. So as described above, we want to come up with a way to map our <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span>:</p>
 <p><span class="math display">\[Y=f(X)\]</span></p>
-<p>This basically says we are after a function <span class="math inline">\(f\)</span> that can get <span class="math inline">\(X\)</span> (our data) and output <span class="math inline">\(Y\)</span> (predictions). There are many methods for finding such a mapping. Linear/logistic regression, Neural Networks and Support Vector Machines are examples of such methods. RandomForest algorithm can also be considered in this category. However, RandomForest does not directly model <span class="math inline">\(f\)</span> in a mathematical sense but rather come up with <span class="math inline">\(f\)</span> using a series of segmentation as we will see soon.</p>
-<p>In order to learn how RandomForest works, we will need to go through a few central topics:</p>
+<p>This basically says we are after a function <span class="math inline">\(f\)</span> that can get <span class="math inline">\(X\)</span> (our data) and output <span class="math inline">\(Y\)</span> (predictions). There are many methods for finding such a mapping. Linear/logistic regression, Neural Networks and Support Vector Machines are examples of such methods. Random forests algorithm can also be considered in this category. However, Random forest does not directly model <span class="math inline">\(f\)</span> in a mathematical sense but rather come up with <span class="math inline">\(f\)</span> using a series of segmentation as we will see soon.</p>
+<p>In order to learn how random forest works, we will need to go through a few central topics:</p>
 <ul>
 <li>Decision trees</li>
 <li>Bagging</li>

@@ -24,7 +24,7 @@
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-09-29" />
+<meta name="date" content="2021-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -544,20 +544,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>In this section we want to re-analyze a data set from mixOmics package. According to the authors: “The Small Round Blue Cell Tumors (SRBCT) dataset from includes the expression levels of 2,308 genes measured on 63 samples. The samples are classified into four classes as follows: 8 Burkitt Lymphoma (BL), 23 Ewing Sarcoma (EWS), 12 neuroblastoma (NB), and 20 rhabdomyosarcoma (RMS).”</p>
 <p>The dataset can be downloaded from here: <a href="https://github.com/mixOmicsTeam/mixOmics/raw/master/data/srbct.rda" class="uri">https://github.com/mixOmicsTeam/mixOmics/raw/master/data/srbct.rda</a></p>
 <p>When downloaded, you can load the data into <code>R</code> using the <code>load</code> function:</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="exercises.html#cb56-1"></a><span class="kw">load</span>(<span class="st">&quot;PATH_TO_FOLDER/srbct.rda&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="exercises.html#cb57-1"></a><span class="kw">load</span>(<span class="st">&quot;PATH_TO_FOLDER/srbct.rda&quot;</span>)</span></code></pre></div>
 <p>Please note that, <code>PATH_TO_FOLDER</code> <em>must</em> be change to the path you downloaded the file into.</p>
 <p>After loading the data, we will have a variable called <code>srbct</code> which is a <code>list</code> containing the following:</p>
 <p><code>gene</code>: a data frame with 63 rows and 2308 columns. The expression levels of 2,308 genes in 63 subjects.</p>
 <p><code>class</code>: a class vector containing the class tumor of each individual (4 classes in total).</p>
 <p><code>gene.name</code>: a data frame with 2,308 rows and 2 columns containing further information on the gene</p>
 <p>We can combine <code>gene</code> and <code>class</code> into a single data frame using:</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="exercises.html#cb57-1"></a>srbct_data&lt;-<span class="kw">data.frame</span>(srbct<span class="op">$</span>gene,<span class="dt">class=</span>srbct<span class="op">$</span>class)</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="exercises.html#cb58-1"></a>srbct_data&lt;-<span class="kw">data.frame</span>(srbct<span class="op">$</span>gene,<span class="dt">class=</span>srbct<span class="op">$</span>class)</span></code></pre></div>
 <p>We are going to use random forests to find variables that are important for discriminating the 4 classes.</p>
 <ol style="list-style-type: decimal">
 <li>Randomly split your data into a training (80 percent of the data) and testing set (20 percent of the data).</li>
 <li>Tune a hyperparameter (<code>mtry</code>) of random forest (only on training data)</li>
-<li>Fit a random forest model to the training data and find its accuracy (either out of bag error or cross validation. up to you!)</li>
-<li>FInd the accuracy of predictiing the test set</li>
+<li>Fit a random forest model to the training data and find its error rate (either out of bag error or cross validation. up to you!)</li>
+<li>What is the accuracy of predicting the test set?</li>
 <li>Find the top 10 most important genes for discriminating all the classes</li>
 <li>What are the top 10 genes for predicting <em>EWS</em> class</li>
 </ol>

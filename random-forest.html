@@ -24,7 +24,7 @@
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-09-29" />
+<meta name="date" content="2021-10-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -554,75 +554,75 @@ We said that if we have a large <span class="math inline">\(m\)</span>, we will 
 </ol>
 <p>So the only additional component here is focusing on a random subset of our features or variables when doing a split. It should be apparent now that random forests can reduce the variance as the direct result of bagging and random splits. In addition, they can also deal with very large datasets especially when the number of variables is large and even greater than the number of samples. Finally, random forests can highlight out-competed variables. The effects of these variables are often cancelled out by other more dominant variables. However, with random forests (with large trees), they will have a chance of to a node in at least some of the trees.</p>
 <p>We are now ready to start coding random forests. We will be used <code>randomForest</code> function from <code>randomForest</code> package.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="random-forest.html#cb39-1"></a><span class="kw">library</span>(ipred)</span>
-<span id="cb39-2"><a href="random-forest.html#cb39-2"></a><span class="kw">library</span>(rpart)</span>
-<span id="cb39-3"><a href="random-forest.html#cb39-3"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb39-4"><a href="random-forest.html#cb39-4"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
-<span id="cb39-5"><a href="random-forest.html#cb39-5"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
-<span id="cb39-6"><a href="random-forest.html#cb39-6"></a></span>
-<span id="cb39-7"><a href="random-forest.html#cb39-7"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
-<span id="cb39-8"><a href="random-forest.html#cb39-8"></a>limited_data4_testing&lt;-data[testing_index,]</span>
-<span id="cb39-9"><a href="random-forest.html#cb39-9"></a></span>
-<span id="cb39-10"><a href="random-forest.html#cb39-10"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
-<span id="cb39-11"><a href="random-forest.html#cb39-11"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
-<span id="cb39-12"><a href="random-forest.html#cb39-12"></a></span>
-<span id="cb39-13"><a href="random-forest.html#cb39-13"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
-<span id="cb39-14"><a href="random-forest.html#cb39-14"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
-<span id="cb39-15"><a href="random-forest.html#cb39-15"></a></span>
-<span id="cb39-16"><a href="random-forest.html#cb39-16"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
-<span id="cb39-17"><a href="random-forest.html#cb39-17"></a>bagged_model &lt;-<span class="st"> </span><span class="kw">bagging</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">nbagg=</span><span class="dv">100</span>)</span>
-<span id="cb39-18"><a href="random-forest.html#cb39-18"></a></span>
-<span id="cb39-19"><a href="random-forest.html#cb39-19"></a></span>
-<span id="cb39-20"><a href="random-forest.html#cb39-20"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
-<span id="cb39-21"><a href="random-forest.html#cb39-21"></a>tree_model &lt;-<span class="st"> </span><span class="kw">rpart</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,</span>
-<span id="cb39-22"><a href="random-forest.html#cb39-22"></a>   <span class="dt">method=</span><span class="st">&quot;class&quot;</span>)</span>
-<span id="cb39-23"><a href="random-forest.html#cb39-23"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
-<span id="cb39-24"><a href="random-forest.html#cb39-24"></a>tree_model&lt;-<span class="st"> </span><span class="kw">prune</span>(tree_model, <span class="dt">cp=</span>   tree_model<span class="op">$</span>cptable[<span class="kw">which.min</span>(tree_model<span class="op">$</span>cptable[,<span class="st">&quot;xerror&quot;</span>]),<span class="st">&quot;CP&quot;</span>])</span>
-<span id="cb39-25"><a href="random-forest.html#cb39-25"></a></span>
-<span id="cb39-26"><a href="random-forest.html#cb39-26"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
-<span id="cb39-27"><a href="random-forest.html#cb39-27"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
-<span id="cb39-28"><a href="random-forest.html#cb39-28"></a></span>
-<span id="cb39-29"><a href="random-forest.html#cb39-29"></a></span>
-<span id="cb39-30"><a href="random-forest.html#cb39-30"></a></span>
-<span id="cb39-31"><a href="random-forest.html#cb39-31"></a>acc_bagging&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(bagged_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
-<span id="cb39-32"><a href="random-forest.html#cb39-32"></a></span>
-<span id="cb39-33"><a href="random-forest.html#cb39-33"></a>acc_tree&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(tree_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
-<span id="cb39-34"><a href="random-forest.html#cb39-34"></a></span>
-<span id="cb39-35"><a href="random-forest.html#cb39-35"></a>acc_rf&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
-<span id="cb39-36"><a href="random-forest.html#cb39-36"></a></span>
-<span id="cb39-37"><a href="random-forest.html#cb39-37"></a></span>
-<span id="cb39-38"><a href="random-forest.html#cb39-38"></a>confMatrix_bagging&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
-<span id="cb39-39"><a href="random-forest.html#cb39-39"></a>confMatrix_tree&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
-<span id="cb39-40"><a href="random-forest.html#cb39-40"></a>confMatrix_rf&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
-<span id="cb39-41"><a href="random-forest.html#cb39-41"></a></span>
-<span id="cb39-42"><a href="random-forest.html#cb39-42"></a></span>
-<span id="cb39-43"><a href="random-forest.html#cb39-43"></a></span>
-<span id="cb39-44"><a href="random-forest.html#cb39-44"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
-<span id="cb39-45"><a href="random-forest.html#cb39-45"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>),<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_rf<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;RandomForest&quot;</span>))</span>
-<span id="cb39-46"><a href="random-forest.html#cb39-46"></a></span>
-<span id="cb39-47"><a href="random-forest.html#cb39-47"></a>plot_data<span class="op">$</span>Color=<span class="ot">NA</span></span>
-<span id="cb39-48"><a href="random-forest.html#cb39-48"></a>plot_data<span class="op">$</span>Color[plot_data<span class="op">$</span>x<span class="op">==</span>plot_data<span class="op">$</span>y]&lt;-<span class="st">&quot;red&quot;</span></span>
-<span id="cb39-49"><a href="random-forest.html#cb39-49"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb39-50"><a href="random-forest.html#cb39-50"></a></span>
-<span id="cb39-51"><a href="random-forest.html#cb39-51"></a><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(Method,<span class="dt">fill=</span>Method)) <span class="op">+</span></span>
-<span id="cb39-52"><a href="random-forest.html#cb39-52"></a><span class="st">    </span><span class="kw">geom_bar</span>(<span class="kw">aes</span>(<span class="dt">y =</span> value),</span>
-<span id="cb39-53"><a href="random-forest.html#cb39-53"></a>             <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span><span class="co">#, position = &quot;dodge&quot;</span></span>
-<span id="cb39-54"><a href="random-forest.html#cb39-54"></a>             ) <span class="op">+</span></span>
-<span id="cb39-55"><a href="random-forest.html#cb39-55"></a><span class="st">    </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="dv">-5</span>, <span class="dt">label =</span> value,<span class="dt">color=</span>Method)) <span class="op">+</span></span>
-<span id="cb39-56"><a href="random-forest.html#cb39-56"></a><span class="st">    </span><span class="kw">facet_grid</span>(x <span class="op">~</span><span class="st"> </span>y, <span class="dt">switch =</span> <span class="st">&quot;y&quot;</span>) <span class="op">+</span></span>
-<span id="cb39-57"><a href="random-forest.html#cb39-57"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;&quot;</span>,</span>
-<span id="cb39-58"><a href="random-forest.html#cb39-58"></a>         <span class="dt">y =</span> <span class="st">&quot;Predicted class&quot;</span>,</span>
-<span id="cb39-59"><a href="random-forest.html#cb39-59"></a>         <span class="dt">x =</span> <span class="st">&quot;True class&quot;</span>) <span class="op">+</span></span>
-<span id="cb39-60"><a href="random-forest.html#cb39-60"></a><span class="st">    </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
-<span id="cb39-61"><a href="random-forest.html#cb39-61"></a><span class="st">   </span><span class="kw">geom_rect</span>(<span class="dt">data=</span>plot_data, <span class="kw">aes</span>(<span class="dt">fill=</span>Color), <span class="dt">xmin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">xmax=</span><span class="ot">Inf</span>, <span class="dt">ymin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">ymax=</span><span class="ot">Inf</span>, <span class="dt">alpha=</span><span class="fl">0.095</span>)<span class="op">+</span></span>
-<span id="cb39-62"><a href="random-forest.html#cb39-62"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;green&quot;</span>,<span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
-<span id="cb39-63"><a href="random-forest.html#cb39-63"></a><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;green&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
-<span id="cb39-64"><a href="random-forest.html#cb39-64"></a><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_blank</span>(),<span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">color =</span> , <span class="dt">fill =</span> <span class="ot">NA</span>, <span class="dt">size =</span> <span class="dv">1</span>),</span>
-<span id="cb39-65"><a href="random-forest.html#cb39-65"></a>          <span class="dt">axis.text.y =</span> <span class="kw">element_blank</span>(),</span>
-<span id="cb39-66"><a href="random-forest.html#cb39-66"></a>          <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>),</span>
-<span id="cb39-67"><a href="random-forest.html#cb39-67"></a>          <span class="dt">axis.ticks =</span> <span class="kw">element_blank</span>(),</span>
-<span id="cb39-68"><a href="random-forest.html#cb39-68"></a>          <span class="dt">strip.text.y =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">0</span>),</span>
-<span id="cb39-69"><a href="random-forest.html#cb39-69"></a>          <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="random-forest.html#cb40-1"></a><span class="kw">library</span>(ipred)</span>
+<span id="cb40-2"><a href="random-forest.html#cb40-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb40-3"><a href="random-forest.html#cb40-3"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb40-4"><a href="random-forest.html#cb40-4"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb40-5"><a href="random-forest.html#cb40-5"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb40-6"><a href="random-forest.html#cb40-6"></a></span>
+<span id="cb40-7"><a href="random-forest.html#cb40-7"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb40-8"><a href="random-forest.html#cb40-8"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb40-9"><a href="random-forest.html#cb40-9"></a></span>
+<span id="cb40-10"><a href="random-forest.html#cb40-10"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb40-11"><a href="random-forest.html#cb40-11"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb40-12"><a href="random-forest.html#cb40-12"></a></span>
+<span id="cb40-13"><a href="random-forest.html#cb40-13"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
+<span id="cb40-14"><a href="random-forest.html#cb40-14"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
+<span id="cb40-15"><a href="random-forest.html#cb40-15"></a></span>
+<span id="cb40-16"><a href="random-forest.html#cb40-16"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb40-17"><a href="random-forest.html#cb40-17"></a>bagged_model &lt;-<span class="st"> </span><span class="kw">bagging</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">nbagg=</span><span class="dv">100</span>)</span>
+<span id="cb40-18"><a href="random-forest.html#cb40-18"></a></span>
+<span id="cb40-19"><a href="random-forest.html#cb40-19"></a></span>
+<span id="cb40-20"><a href="random-forest.html#cb40-20"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb40-21"><a href="random-forest.html#cb40-21"></a>tree_model &lt;-<span class="st"> </span><span class="kw">rpart</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,</span>
+<span id="cb40-22"><a href="random-forest.html#cb40-22"></a>   <span class="dt">method=</span><span class="st">&quot;class&quot;</span>)</span>
+<span id="cb40-23"><a href="random-forest.html#cb40-23"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb40-24"><a href="random-forest.html#cb40-24"></a>tree_model&lt;-<span class="st"> </span><span class="kw">prune</span>(tree_model, <span class="dt">cp=</span>   tree_model<span class="op">$</span>cptable[<span class="kw">which.min</span>(tree_model<span class="op">$</span>cptable[,<span class="st">&quot;xerror&quot;</span>]),<span class="st">&quot;CP&quot;</span>])</span>
+<span id="cb40-25"><a href="random-forest.html#cb40-25"></a></span>
+<span id="cb40-26"><a href="random-forest.html#cb40-26"></a><span class="kw">set.seed</span>(<span class="dv">10</span>)</span>
+<span id="cb40-27"><a href="random-forest.html#cb40-27"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
+<span id="cb40-28"><a href="random-forest.html#cb40-28"></a></span>
+<span id="cb40-29"><a href="random-forest.html#cb40-29"></a></span>
+<span id="cb40-30"><a href="random-forest.html#cb40-30"></a></span>
+<span id="cb40-31"><a href="random-forest.html#cb40-31"></a>acc_bagging&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(bagged_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb40-32"><a href="random-forest.html#cb40-32"></a></span>
+<span id="cb40-33"><a href="random-forest.html#cb40-33"></a>acc_tree&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(tree_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb40-34"><a href="random-forest.html#cb40-34"></a></span>
+<span id="cb40-35"><a href="random-forest.html#cb40-35"></a>acc_rf&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
+<span id="cb40-36"><a href="random-forest.html#cb40-36"></a></span>
+<span id="cb40-37"><a href="random-forest.html#cb40-37"></a></span>
+<span id="cb40-38"><a href="random-forest.html#cb40-38"></a>confMatrix_bagging&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb40-39"><a href="random-forest.html#cb40-39"></a>confMatrix_tree&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb40-40"><a href="random-forest.html#cb40-40"></a>confMatrix_rf&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb40-41"><a href="random-forest.html#cb40-41"></a></span>
+<span id="cb40-42"><a href="random-forest.html#cb40-42"></a></span>
+<span id="cb40-43"><a href="random-forest.html#cb40-43"></a></span>
+<span id="cb40-44"><a href="random-forest.html#cb40-44"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
+<span id="cb40-45"><a href="random-forest.html#cb40-45"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>),<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_rf<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;RandomForest&quot;</span>))</span>
+<span id="cb40-46"><a href="random-forest.html#cb40-46"></a></span>
+<span id="cb40-47"><a href="random-forest.html#cb40-47"></a>plot_data<span class="op">$</span>Color=<span class="ot">NA</span></span>
+<span id="cb40-48"><a href="random-forest.html#cb40-48"></a>plot_data<span class="op">$</span>Color[plot_data<span class="op">$</span>x<span class="op">==</span>plot_data<span class="op">$</span>y]&lt;-<span class="st">&quot;red&quot;</span></span>
+<span id="cb40-49"><a href="random-forest.html#cb40-49"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb40-50"><a href="random-forest.html#cb40-50"></a></span>
+<span id="cb40-51"><a href="random-forest.html#cb40-51"></a><span class="kw">ggplot</span>(plot_data, <span class="kw">aes</span>(Method,<span class="dt">fill=</span>Method)) <span class="op">+</span></span>
+<span id="cb40-52"><a href="random-forest.html#cb40-52"></a><span class="st">    </span><span class="kw">geom_bar</span>(<span class="kw">aes</span>(<span class="dt">y =</span> value),</span>
+<span id="cb40-53"><a href="random-forest.html#cb40-53"></a>             <span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span><span class="co">#, position = &quot;dodge&quot;</span></span>
+<span id="cb40-54"><a href="random-forest.html#cb40-54"></a>             ) <span class="op">+</span></span>
+<span id="cb40-55"><a href="random-forest.html#cb40-55"></a><span class="st">    </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">y =</span> <span class="dv">-5</span>, <span class="dt">label =</span> value,<span class="dt">color=</span>Method)) <span class="op">+</span></span>
+<span id="cb40-56"><a href="random-forest.html#cb40-56"></a><span class="st">    </span><span class="kw">facet_grid</span>(x <span class="op">~</span><span class="st"> </span>y, <span class="dt">switch =</span> <span class="st">&quot;y&quot;</span>) <span class="op">+</span></span>
+<span id="cb40-57"><a href="random-forest.html#cb40-57"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;&quot;</span>,</span>
+<span id="cb40-58"><a href="random-forest.html#cb40-58"></a>         <span class="dt">y =</span> <span class="st">&quot;Predicted class&quot;</span>,</span>
+<span id="cb40-59"><a href="random-forest.html#cb40-59"></a>         <span class="dt">x =</span> <span class="st">&quot;True class&quot;</span>) <span class="op">+</span></span>
+<span id="cb40-60"><a href="random-forest.html#cb40-60"></a><span class="st">    </span><span class="kw">theme_bw</span>() <span class="op">+</span></span>
+<span id="cb40-61"><a href="random-forest.html#cb40-61"></a><span class="st">   </span><span class="kw">geom_rect</span>(<span class="dt">data=</span>plot_data, <span class="kw">aes</span>(<span class="dt">fill=</span>Color), <span class="dt">xmin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">xmax=</span><span class="ot">Inf</span>, <span class="dt">ymin=</span><span class="op">-</span><span class="ot">Inf</span>, <span class="dt">ymax=</span><span class="ot">Inf</span>, <span class="dt">alpha=</span><span class="fl">0.095</span>)<span class="op">+</span></span>
+<span id="cb40-62"><a href="random-forest.html#cb40-62"></a><span class="st">  </span><span class="kw">scale_fill_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;green&quot;</span>,<span class="st">&quot;red&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
+<span id="cb40-63"><a href="random-forest.html#cb40-63"></a><span class="st">    </span><span class="kw">scale_color_manual</span>(<span class="dt">values=</span><span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>,<span class="st">&quot;green&quot;</span>), <span class="dt">breaks=</span><span class="ot">NULL</span>)<span class="op">+</span></span>
+<span id="cb40-64"><a href="random-forest.html#cb40-64"></a><span class="st">    </span><span class="kw">theme</span>(<span class="dt">strip.background =</span> <span class="kw">element_blank</span>(),<span class="dt">panel.border =</span> <span class="kw">element_rect</span>(<span class="dt">color =</span> , <span class="dt">fill =</span> <span class="ot">NA</span>, <span class="dt">size =</span> <span class="dv">1</span>),</span>
+<span id="cb40-65"><a href="random-forest.html#cb40-65"></a>          <span class="dt">axis.text.y =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb40-66"><a href="random-forest.html#cb40-66"></a>          <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>),</span>
+<span id="cb40-67"><a href="random-forest.html#cb40-67"></a>          <span class="dt">axis.ticks =</span> <span class="kw">element_blank</span>(),</span>
+<span id="cb40-68"><a href="random-forest.html#cb40-68"></a>          <span class="dt">strip.text.y =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">0</span>),</span>
+<span id="cb40-69"><a href="random-forest.html#cb40-69"></a>          <span class="dt">strip.text =</span> <span class="kw">element_text</span>(<span class="dt">size =</span> <span class="dv">9</span>))</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups34"></span>
 <img src="_main_files/figure-html/fig-groups34-1.png" alt="Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correct classification" width="1440" />
 <p class="caption">
@@ -640,55 +640,55 @@ Figure 5.1: Prediction accuracy of normal tree vs. bagging vs. random forest. 
 <div id="tuning-parameters-for-random-forests" class="section level2">
 <h2><span class="header-section-number">5.1</span> Tuning parameters for random forests</h2>
 <p>As we discussed before, cross-validation can be used to tune parameters for statistical models. We can also use them for tuning <code>mtry</code> and <code>ntree</code>. An easier way to do so is to use out of bag error. We show both of our approaches here. Although there are packages like <code>caret</code> that automate this process, we use a manual approach so you can see how it is done.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="random-forest.html#cb40-1"></a><span class="kw">library</span>(ipred)</span>
-<span id="cb40-2"><a href="random-forest.html#cb40-2"></a><span class="kw">library</span>(rpart)</span>
-<span id="cb40-3"><a href="random-forest.html#cb40-3"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
-<span id="cb40-4"><a href="random-forest.html#cb40-4"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
-<span id="cb40-5"><a href="random-forest.html#cb40-5"></a></span>
-<span id="cb40-6"><a href="random-forest.html#cb40-6"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
-<span id="cb40-7"><a href="random-forest.html#cb40-7"></a>limited_data4_testing&lt;-data[testing_index,]</span>
-<span id="cb40-8"><a href="random-forest.html#cb40-8"></a></span>
-<span id="cb40-9"><a href="random-forest.html#cb40-9"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
-<span id="cb40-10"><a href="random-forest.html#cb40-10"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
-<span id="cb40-11"><a href="random-forest.html#cb40-11"></a></span>
-<span id="cb40-12"><a href="random-forest.html#cb40-12"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
-<span id="cb40-13"><a href="random-forest.html#cb40-13"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
-<span id="cb40-14"><a href="random-forest.html#cb40-14"></a></span>
-<span id="cb40-15"><a href="random-forest.html#cb40-15"></a></span>
-<span id="cb40-16"><a href="random-forest.html#cb40-16"></a><span class="co"># Create grid of search parameters</span></span>
-<span id="cb40-17"><a href="random-forest.html#cb40-17"></a>hp_grid &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(</span>
-<span id="cb40-18"><a href="random-forest.html#cb40-18"></a>  <span class="dt">mtry       =</span> <span class="kw">c</span>(<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>),</span>
-<span id="cb40-19"><a href="random-forest.html#cb40-19"></a>  <span class="dt">ntree =</span> <span class="kw">seq</span>(<span class="dv">100</span>, <span class="dv">500</span>, <span class="dt">by =</span> <span class="dv">100</span>),</span>
-<span id="cb40-20"><a href="random-forest.html#cb40-20"></a>  <span class="dt">OOB  =</span> <span class="dv">0</span>,</span>
-<span id="cb40-21"><a href="random-forest.html#cb40-21"></a>  <span class="dt">CV =</span> <span class="dv">0</span></span>
-<span id="cb40-22"><a href="random-forest.html#cb40-22"></a>)</span>
-<span id="cb40-23"><a href="random-forest.html#cb40-23"></a></span>
-<span id="cb40-24"><a href="random-forest.html#cb40-24"></a><span class="co"># loop over each hpyper parameter</span></span>
-<span id="cb40-25"><a href="random-forest.html#cb40-25"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(hp_grid)) {</span>
-<span id="cb40-26"><a href="random-forest.html#cb40-26"></a>  </span>
-<span id="cb40-27"><a href="random-forest.html#cb40-27"></a>  <span class="co"># train model</span></span>
-<span id="cb40-28"><a href="random-forest.html#cb40-28"></a>  <span class="kw">set.seed</span>(i)</span>
-<span id="cb40-29"><a href="random-forest.html#cb40-29"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span>hp_grid<span class="op">$</span>ntree[i],<span class="dt">mtry=</span>hp_grid<span class="op">$</span>mtry[i],<span class="dt">importance=</span>T)</span>
-<span id="cb40-30"><a href="random-forest.html#cb40-30"></a></span>
-<span id="cb40-31"><a href="random-forest.html#cb40-31"></a><span class="kw">set.seed</span>(i)</span>
-<span id="cb40-32"><a href="random-forest.html#cb40-32"></a>folds &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">length.out =</span> <span class="kw">nrow</span>(limited_data4_training)), <span class="dt">size =</span> <span class="kw">nrow</span>(limited_data4_training), <span class="dt">replace =</span> F)</span>
-<span id="cb40-33"><a href="random-forest.html#cb40-33"></a></span>
-<span id="cb40-34"><a href="random-forest.html#cb40-34"></a>CV_rf &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(x){</span>
-<span id="cb40-35"><a href="random-forest.html#cb40-35"></a>  tmp&lt;-limited_data4_training[folds <span class="op">!=</span><span class="st"> </span>x,]</span>
-<span id="cb40-36"><a href="random-forest.html#cb40-36"></a>  <span class="kw">set.seed</span>(i<span class="op">*</span>x)</span>
-<span id="cb40-37"><a href="random-forest.html#cb40-37"></a>  model &lt;-<span class="st"> </span>randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span>limited_data4_training[folds <span class="op">!=</span><span class="st"> </span>x,] ,<span class="dt">ntree=</span>hp_grid<span class="op">$</span>ntree[i],<span class="dt">mtry=</span>hp_grid<span class="op">$</span>mtry[i],<span class="dt">importance=</span>T)</span>
-<span id="cb40-38"><a href="random-forest.html#cb40-38"></a></span>
-<span id="cb40-39"><a href="random-forest.html#cb40-39"></a>  <span class="kw">return</span>( <span class="dv">100</span><span class="op">-</span>rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(model,limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,],<span class="dt">type=</span><span class="st">&quot;response&quot;</span>), limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,<span class="st">&quot;group&quot;</span>] )<span class="op">$</span>PCC)</span>
-<span id="cb40-40"><a href="random-forest.html#cb40-40"></a>  })</span>
-<span id="cb40-41"><a href="random-forest.html#cb40-41"></a></span>
-<span id="cb40-42"><a href="random-forest.html#cb40-42"></a>hp_grid<span class="op">$</span>OOB[i] &lt;-<span class="st"> </span><span class="kw">round</span>(rf_model<span class="op">$</span>err.rate[rf_model<span class="op">$</span>ntree,<span class="st">&quot;OOB&quot;</span>] <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="dt">digits =</span> <span class="dv">2</span>)</span>
-<span id="cb40-43"><a href="random-forest.html#cb40-43"></a>hp_grid<span class="op">$</span>CV[i]&lt;-<span class="kw">median</span>(CV_rf)</span>
-<span id="cb40-44"><a href="random-forest.html#cb40-44"></a>}</span>
-<span id="cb40-45"><a href="random-forest.html#cb40-45"></a></span>
-<span id="cb40-46"><a href="random-forest.html#cb40-46"></a>hp_grid<span class="op">$</span>ntree&lt;-<span class="kw">factor</span>(hp_grid<span class="op">$</span>ntree)</span>
-<span id="cb40-47"><a href="random-forest.html#cb40-47"></a>oob_plot&lt;-<span class="kw">ggplot</span>(<span class="dt">data =</span> hp_grid, <span class="kw">aes</span>(<span class="dt">x=</span>mtry, <span class="dt">y=</span>OOB)) <span class="op">+</span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="kw">theme_classic</span>()<span class="op">+</span><span class="kw">ylim</span>(<span class="kw">min</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)),<span class="kw">max</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)))</span>
-<span id="cb40-48"><a href="random-forest.html#cb40-48"></a>cv_plot&lt;-<span class="kw">ggplot</span>(<span class="dt">data =</span> hp_grid, <span class="kw">aes</span>(<span class="dt">x=</span>mtry, <span class="dt">y=</span>CV)) <span class="op">+</span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="kw">theme_classic</span>()<span class="op">+</span><span class="kw">ylim</span>(<span class="kw">min</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)),<span class="kw">max</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)))</span>
-<span id="cb40-49"><a href="random-forest.html#cb40-49"></a>cowplot<span class="op">::</span><span class="kw">plot_grid</span>(oob_plot,cv_plot,<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="random-forest.html#cb41-1"></a><span class="kw">library</span>(ipred)</span>
+<span id="cb41-2"><a href="random-forest.html#cb41-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb41-3"><a href="random-forest.html#cb41-3"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb41-4"><a href="random-forest.html#cb41-4"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb41-5"><a href="random-forest.html#cb41-5"></a></span>
+<span id="cb41-6"><a href="random-forest.html#cb41-6"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb41-7"><a href="random-forest.html#cb41-7"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb41-8"><a href="random-forest.html#cb41-8"></a></span>
+<span id="cb41-9"><a href="random-forest.html#cb41-9"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb41-10"><a href="random-forest.html#cb41-10"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb41-11"><a href="random-forest.html#cb41-11"></a></span>
+<span id="cb41-12"><a href="random-forest.html#cb41-12"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
+<span id="cb41-13"><a href="random-forest.html#cb41-13"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
+<span id="cb41-14"><a href="random-forest.html#cb41-14"></a></span>
+<span id="cb41-15"><a href="random-forest.html#cb41-15"></a></span>
+<span id="cb41-16"><a href="random-forest.html#cb41-16"></a><span class="co"># Create grid of search parameters</span></span>
+<span id="cb41-17"><a href="random-forest.html#cb41-17"></a>hp_grid &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(</span>
+<span id="cb41-18"><a href="random-forest.html#cb41-18"></a>  <span class="dt">mtry       =</span> <span class="kw">c</span>(<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>),</span>
+<span id="cb41-19"><a href="random-forest.html#cb41-19"></a>  <span class="dt">ntree =</span> <span class="kw">seq</span>(<span class="dv">100</span>, <span class="dv">500</span>, <span class="dt">by =</span> <span class="dv">100</span>),</span>
+<span id="cb41-20"><a href="random-forest.html#cb41-20"></a>  <span class="dt">OOB  =</span> <span class="dv">0</span>,</span>
+<span id="cb41-21"><a href="random-forest.html#cb41-21"></a>  <span class="dt">CV =</span> <span class="dv">0</span></span>
+<span id="cb41-22"><a href="random-forest.html#cb41-22"></a>)</span>
+<span id="cb41-23"><a href="random-forest.html#cb41-23"></a></span>
+<span id="cb41-24"><a href="random-forest.html#cb41-24"></a><span class="co"># loop over each hpyper parameter</span></span>
+<span id="cb41-25"><a href="random-forest.html#cb41-25"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(hp_grid)) {</span>
+<span id="cb41-26"><a href="random-forest.html#cb41-26"></a></span>
+<span id="cb41-27"><a href="random-forest.html#cb41-27"></a>  <span class="co"># train model</span></span>
+<span id="cb41-28"><a href="random-forest.html#cb41-28"></a>  <span class="kw">set.seed</span>(i)</span>
+<span id="cb41-29"><a href="random-forest.html#cb41-29"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span>hp_grid<span class="op">$</span>ntree[i],<span class="dt">mtry=</span>hp_grid<span class="op">$</span>mtry[i],<span class="dt">importance=</span>T)</span>
+<span id="cb41-30"><a href="random-forest.html#cb41-30"></a></span>
+<span id="cb41-31"><a href="random-forest.html#cb41-31"></a><span class="kw">set.seed</span>(i)</span>
+<span id="cb41-32"><a href="random-forest.html#cb41-32"></a>folds &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="dt">length.out =</span> <span class="kw">nrow</span>(limited_data4_training)), <span class="dt">size =</span> <span class="kw">nrow</span>(limited_data4_training), <span class="dt">replace =</span> F)</span>
+<span id="cb41-33"><a href="random-forest.html#cb41-33"></a></span>
+<span id="cb41-34"><a href="random-forest.html#cb41-34"></a>CV_rf &lt;-<span class="st"> </span><span class="kw">sapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">5</span>, <span class="cf">function</span>(x){</span>
+<span id="cb41-35"><a href="random-forest.html#cb41-35"></a>  tmp&lt;-limited_data4_training[folds <span class="op">!=</span><span class="st"> </span>x,]</span>
+<span id="cb41-36"><a href="random-forest.html#cb41-36"></a>  <span class="kw">set.seed</span>(i<span class="op">*</span>x)</span>
+<span id="cb41-37"><a href="random-forest.html#cb41-37"></a>  model &lt;-<span class="st"> </span>randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span>limited_data4_training[folds <span class="op">!=</span><span class="st"> </span>x,] ,<span class="dt">ntree=</span>hp_grid<span class="op">$</span>ntree[i],<span class="dt">mtry=</span>hp_grid<span class="op">$</span>mtry[i],<span class="dt">importance=</span>T)</span>
+<span id="cb41-38"><a href="random-forest.html#cb41-38"></a></span>
+<span id="cb41-39"><a href="random-forest.html#cb41-39"></a>  <span class="kw">return</span>( <span class="dv">100</span><span class="op">-</span>rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(model,limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,],<span class="dt">type=</span><span class="st">&quot;response&quot;</span>), limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,<span class="st">&quot;group&quot;</span>] )<span class="op">$</span>PCC)</span>
+<span id="cb41-40"><a href="random-forest.html#cb41-40"></a>  })</span>
+<span id="cb41-41"><a href="random-forest.html#cb41-41"></a></span>
+<span id="cb41-42"><a href="random-forest.html#cb41-42"></a>hp_grid<span class="op">$</span>OOB[i] &lt;-<span class="st"> </span><span class="kw">round</span>(rf_model<span class="op">$</span>err.rate[rf_model<span class="op">$</span>ntree,<span class="st">&quot;OOB&quot;</span>] <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="dt">digits =</span> <span class="dv">2</span>)</span>
+<span id="cb41-43"><a href="random-forest.html#cb41-43"></a>hp_grid<span class="op">$</span>CV[i]&lt;-<span class="kw">median</span>(CV_rf)</span>
+<span id="cb41-44"><a href="random-forest.html#cb41-44"></a>}</span>
+<span id="cb41-45"><a href="random-forest.html#cb41-45"></a></span>
+<span id="cb41-46"><a href="random-forest.html#cb41-46"></a>hp_grid<span class="op">$</span>ntree&lt;-<span class="kw">factor</span>(hp_grid<span class="op">$</span>ntree)</span>
+<span id="cb41-47"><a href="random-forest.html#cb41-47"></a>oob_plot&lt;-<span class="kw">ggplot</span>(<span class="dt">data =</span> hp_grid, <span class="kw">aes</span>(<span class="dt">x=</span>mtry, <span class="dt">y=</span>OOB)) <span class="op">+</span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="kw">theme_classic</span>()<span class="op">+</span><span class="kw">ylim</span>(<span class="kw">min</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)),<span class="kw">max</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)))</span>
+<span id="cb41-48"><a href="random-forest.html#cb41-48"></a>cv_plot&lt;-<span class="kw">ggplot</span>(<span class="dt">data =</span> hp_grid, <span class="kw">aes</span>(<span class="dt">x=</span>mtry, <span class="dt">y=</span>CV)) <span class="op">+</span><span class="kw">geom_point</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">colour=</span>ntree))<span class="op">+</span><span class="kw">theme_classic</span>()<span class="op">+</span><span class="kw">ylim</span>(<span class="kw">min</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)),<span class="kw">max</span>(<span class="kw">c</span>(hp_grid<span class="op">$</span>OOB,hp_grid<span class="op">$</span>CV)))</span>
+<span id="cb41-49"><a href="random-forest.html#cb41-49"></a>cowplot<span class="op">::</span><span class="kw">plot_grid</span>(oob_plot,cv_plot,<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;A&quot;</span>,<span class="st">&quot;B&quot;</span>))</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups35"></span>
 <img src="_main_files/figure-html/fig-groups35-1.png" alt="Paramemter tuning for mtry and ntree. Out of bag errors (A) are compared with cross validation (B)" width="1440" />
 <p class="caption">
@@ -725,19 +725,19 @@ Finally, as we build multiple trees in random forest, we have to calculate the a
 where <span class="math inline">\(FI_i\)</span> is the feature importance of variable <span class="math inline">\(i\)</span>, <span class="math inline">\(FIMP^{\ norm}_{i,j}\)</span> is the normalized <span class="math inline">\(FIMP\)</span> for feature <span class="math inline">\(i\)</span> in tree <span class="math inline">\(j\)</span> and <span class="math inline">\(|T|\)</span> is the total number of trees. What the whole thing is telling us is that for each feature in each tree, we calculate the average decrease in impurity, sum it over the trees and normalize it by the number of trees.</p>
 <p>Please note that there are many different implementation feature importance but in principle, most of them are very similar to what we have discussed so far.</p>
 <p>We can now have a look at our feature importance in random forest:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="random-forest.html#cb41-1"></a><span class="kw">library</span>(ipred)</span>
-<span id="cb41-2"><a href="random-forest.html#cb41-2"></a><span class="kw">library</span>(rpart)</span>
-<span id="cb41-3"><a href="random-forest.html#cb41-3"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
-<span id="cb41-4"><a href="random-forest.html#cb41-4"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
-<span id="cb41-5"><a href="random-forest.html#cb41-5"></a></span>
-<span id="cb41-6"><a href="random-forest.html#cb41-6"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
-<span id="cb41-7"><a href="random-forest.html#cb41-7"></a>limited_data4_testing&lt;-data[testing_index,]</span>
-<span id="cb41-8"><a href="random-forest.html#cb41-8"></a></span>
-<span id="cb41-9"><a href="random-forest.html#cb41-9"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
-<span id="cb41-10"><a href="random-forest.html#cb41-10"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
-<span id="cb41-11"><a href="random-forest.html#cb41-11"></a></span>
-<span id="cb41-12"><a href="random-forest.html#cb41-12"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
-<span id="cb41-13"><a href="random-forest.html#cb41-13"></a>randomForest<span class="op">::</span><span class="kw">varImpPlot</span>(rf_model)</span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="random-forest.html#cb42-1"></a><span class="kw">library</span>(ipred)</span>
+<span id="cb42-2"><a href="random-forest.html#cb42-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb42-3"><a href="random-forest.html#cb42-3"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb42-4"><a href="random-forest.html#cb42-4"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb42-5"><a href="random-forest.html#cb42-5"></a></span>
+<span id="cb42-6"><a href="random-forest.html#cb42-6"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb42-7"><a href="random-forest.html#cb42-7"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb42-8"><a href="random-forest.html#cb42-8"></a></span>
+<span id="cb42-9"><a href="random-forest.html#cb42-9"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb42-10"><a href="random-forest.html#cb42-10"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb42-11"><a href="random-forest.html#cb42-11"></a></span>
+<span id="cb42-12"><a href="random-forest.html#cb42-12"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
+<span id="cb42-13"><a href="random-forest.html#cb42-13"></a>randomForest<span class="op">::</span><span class="kw">varImpPlot</span>(rf_model)</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups36"></span>
 <img src="_main_files/figure-html/fig-groups36-1.png" alt="Feature importance for random forests" width="1440" />
 <p class="caption">
@@ -753,7 +753,7 @@ Figure 5.3: Feature importance for random forests
 <div id="data" class="section level3">
 <h3><span class="header-section-number">5.3.1</span> Data</h3>
 <p>Our data has to be in a data.frame where features are in the columns and samples in the rows. The categorical variables should preferably be <code>factor</code> and you should have a column for your response variable. You can then use <code>formula</code> capability of R to easily run randomForest: <code>randomForest::randomForest(group ~ ., data = limited_data4_training)</code>. This essentially says that our data is sitting in a data frame which has a called named <code>group</code>. The dot in from of tilde (<code>~</code>) tells the formula the use all other columns (except group) for modelling the data. This is how our data look like:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="random-forest.html#cb42-1"></a><span class="kw">head</span>(limited_data4_training)</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="random-forest.html#cb43-1"></a><span class="kw">head</span>(limited_data4_training)</span></code></pre></div>
 <pre><code>##    gender age mmt abeta t_tau p_tau group
 ## 1       M  75  12   370   240    44    AD
 ## 4       F  82  26   230   530    84    AD
@@ -762,21 +762,21 @@ Figure 5.3: Feature importance for random forests
 ## 11      M  77  23   430   780   119    AD
 ## 12      F  80  26   350  1150   159    AD</code></pre>
 <p>You can set various parameters in <code>randomForest</code> but probably the most relevant ones are <code>mtry</code>, <code>ntree</code> and <code>importance</code>. We have already covered all of these and in one command you can run <code>randomForest::randomForest(group ~ ., data = limited_data4_training,mtry=5,ntree=100)</code>.</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="random-forest.html#cb44-1"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
-<span id="cb44-2"><a href="random-forest.html#cb44-2"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
-<span id="cb44-3"><a href="random-forest.html#cb44-3"></a></span>
-<span id="cb44-4"><a href="random-forest.html#cb44-4"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
-<span id="cb44-5"><a href="random-forest.html#cb44-5"></a>limited_data4_testing&lt;-data[testing_index,]</span>
-<span id="cb44-6"><a href="random-forest.html#cb44-6"></a></span>
-<span id="cb44-7"><a href="random-forest.html#cb44-7"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
-<span id="cb44-8"><a href="random-forest.html#cb44-8"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
-<span id="cb44-9"><a href="random-forest.html#cb44-9"></a></span>
-<span id="cb44-10"><a href="random-forest.html#cb44-10"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
-<span id="cb44-11"><a href="random-forest.html#cb44-11"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
-<span id="cb44-12"><a href="random-forest.html#cb44-12"></a></span>
-<span id="cb44-13"><a href="random-forest.html#cb44-13"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
-<span id="cb44-14"><a href="random-forest.html#cb44-14"></a></span>
-<span id="cb44-15"><a href="random-forest.html#cb44-15"></a><span class="kw">print</span>(rf_model)</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="random-forest.html#cb45-1"></a><span class="kw">set.seed</span>(<span class="dv">20</span>)</span>
+<span id="cb45-2"><a href="random-forest.html#cb45-2"></a>testing_index&lt;-<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(data<span class="op">$</span>p_tau),<span class="dv">100</span>,<span class="dt">replace =</span> F)</span>
+<span id="cb45-3"><a href="random-forest.html#cb45-3"></a></span>
+<span id="cb45-4"><a href="random-forest.html#cb45-4"></a>limited_data4_training&lt;-data[<span class="op">-</span>testing_index,]</span>
+<span id="cb45-5"><a href="random-forest.html#cb45-5"></a>limited_data4_testing&lt;-data[testing_index,]</span>
+<span id="cb45-6"><a href="random-forest.html#cb45-6"></a></span>
+<span id="cb45-7"><a href="random-forest.html#cb45-7"></a>limited_data4_training<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>group)</span>
+<span id="cb45-8"><a href="random-forest.html#cb45-8"></a>limited_data4_training<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_training<span class="op">$</span>gender)</span>
+<span id="cb45-9"><a href="random-forest.html#cb45-9"></a></span>
+<span id="cb45-10"><a href="random-forest.html#cb45-10"></a>limited_data4_testing<span class="op">$</span>group&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>group)</span>
+<span id="cb45-11"><a href="random-forest.html#cb45-11"></a>limited_data4_testing<span class="op">$</span>gender&lt;-<span class="kw">as.factor</span>(limited_data4_testing<span class="op">$</span>gender)</span>
+<span id="cb45-12"><a href="random-forest.html#cb45-12"></a></span>
+<span id="cb45-13"><a href="random-forest.html#cb45-13"></a>rf_model&lt;-randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> limited_data4_training,<span class="dt">ntree=</span><span class="dv">100</span>,<span class="dt">importance=</span>T)</span>
+<span id="cb45-14"><a href="random-forest.html#cb45-14"></a></span>
+<span id="cb45-15"><a href="random-forest.html#cb45-15"></a><span class="kw">print</span>(rf_model)</span></code></pre></div>
 <pre><code>## 
 ## Call:
 ##  randomForest(formula = group ~ ., data = limited_data4_training,      ntree = 100, importance = T) 
@@ -799,15 +799,15 @@ Figure 5.3: Feature importance for random forests
 ## MCI/ADConverter       1.0000000
 ## MCI/non-ADConverter   0.2272727</code></pre>
 <p>For doing prediction, we will use <code>predict</code> function. This function has three main arguments:<code>object</code>, <code>newdata</code> and <code>type</code>. <code>object</code> is the model we have trained. <code>newdata</code> is the data.frame of our new data and <code>type</code> is one of <code>response</code>, <code>prob.</code> or <code>votes</code>, indicating the type of output: predicted values, matrix of class probabilities, or matrix of vote counts.</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="random-forest.html#cb46-1"></a>predicted_class&lt;-<span class="kw">predict</span>(rf_model,limited_data4_testing,<span class="dt">type=</span><span class="st">&quot;response&quot;</span>)</span>
-<span id="cb46-2"><a href="random-forest.html#cb46-2"></a><span class="kw">head</span>(predicted_class)</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="random-forest.html#cb47-1"></a>predicted_class&lt;-<span class="kw">predict</span>(rf_model,limited_data4_testing,<span class="dt">type=</span><span class="st">&quot;response&quot;</span>)</span>
+<span id="cb47-2"><a href="random-forest.html#cb47-2"></a><span class="kw">head</span>(predicted_class)</span></code></pre></div>
 <pre><code>##                 166                 191                 107                 120 
 ##             control             control             control MCI/non-ADConverter 
 ##                 130                  98 
 ## MCI/non-ADConverter                  AD 
 ## Levels: AD control FTD MCI/ADConverter MCI/non-ADConverter</code></pre>
 <p>We can use <code>accuracy</code> function from <code>rfUtilities</code> package to calculate some accuracy measures. This function gets the predicted and true values <code>rfUtilities::accuracy(predicted_class,true_class)</code></p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="random-forest.html#cb48-1"></a>rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(predicted_class, limited_data4_testing<span class="op">$</span>group)</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="random-forest.html#cb49-1"></a>rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(predicted_class, limited_data4_testing<span class="op">$</span>group)</span></code></pre></div>
 <pre><code>## Accuracy (PCC): 71% 
 ## 
 ## Cohen&#39;s Kappa: 0.5921 
@@ -835,9 +835,9 @@ Figure 5.3: Feature importance for random forests
 ##   MCI/ADConverter      2       0   0               0                   0
 ##   MCI/non-ADConverter  4       0   3               1                  22</code></pre>
 <p>To tune mtry we can use <code>tuneRF</code> from <code>randomForest</code>. This function gets multiple arguments including <code>x</code>: data without the class (group) column, <code>y</code>: group columns, <code>mtryStart</code>: starting value of mtry, <code>ntreeTry</code>: number of trees to build. It will use out of bag error to calculate tuned value for mtry. However, for tuning other parameters we might need to write our own function or use other packages such as <code>caret</code>.</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="random-forest.html#cb50-1"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
-<span id="cb50-2"><a href="random-forest.html#cb50-2"></a><span class="kw">set.seed</span>(<span class="dv">5</span>)</span>
-<span id="cb50-3"><a href="random-forest.html#cb50-3"></a>randomForest<span class="op">::</span><span class="kw">tuneRF</span>(limited_data4_training,limited_data4_training<span class="op">$</span>group,<span class="dt">mtryStart =</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="random-forest.html#cb51-1"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb51-2"><a href="random-forest.html#cb51-2"></a><span class="kw">set.seed</span>(<span class="dv">5</span>)</span>
+<span id="cb51-3"><a href="random-forest.html#cb51-3"></a>randomForest<span class="op">::</span><span class="kw">tuneRF</span>(limited_data4_training,limited_data4_training<span class="op">$</span>group,<span class="dt">mtryStart =</span> <span class="dv">1</span>)</span></code></pre></div>
 <pre><code>## mtry = 1  OOB error = 8.49% 
 ## Searching left ...
 ## Searching right ...
@@ -859,8 +859,8 @@ Figure 5.4: Tuning output of tuneRF
 ## 4.OOB    4 0.009433962
 ## 7.OOB    7 0.000000000</code></pre>
 <p>Finally, to see the variable importance, we can use <code>importance</code> and <code>varImpPlot</code> function to extract and plot the variable importance. There are multiple parameters but the most important ones are <code>x</code>: random forest model, <code>type</code>: either 1 or 2, specifying the type of importance measure (1=mean decrease in accuracy, 2=mean decrease in node impurity), <code>class</code>: for the classification problem, which class-specific measure to return.</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="random-forest.html#cb53-1"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
-<span id="cb53-2"><a href="random-forest.html#cb53-2"></a>randomForest<span class="op">::</span><span class="kw">importance</span>(rf_model)</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="random-forest.html#cb54-1"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb54-2"><a href="random-forest.html#cb54-2"></a>randomForest<span class="op">::</span><span class="kw">importance</span>(rf_model)</span></code></pre></div>
 <pre><code>##               AD   control        FTD MCI/ADConverter MCI/non-ADConverter
 ## gender 0.2606584  4.118921  5.8516194      -0.2829469            2.632055
 ## age    5.4417838 21.579161  1.5053292       3.7648161            7.118233
@@ -875,7 +875,7 @@ Figure 5.4: Tuning output of tuneRF
 ## abeta              9.598139        17.047667
 ## t_tau             12.718459        14.234984
 ## p_tau              2.548707         8.229038</code></pre>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="random-forest.html#cb55-1"></a>randomForest<span class="op">::</span><span class="kw">varImpPlot</span>(rf_model)</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="random-forest.html#cb56-1"></a>randomForest<span class="op">::</span><span class="kw">varImpPlot</span>(rf_model)</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:fig-groups38"></span>
 <img src="_main_files/figure-html/fig-groups38-1.png" alt="Variable importance plot" width="1440" />
 <p class="caption">
