@@ -19,9 +19,8 @@ output:
 
 In order to run the code in this chapter, you will need to install a number of packages. The packages are listed below.  
 
-The **bookdown** package can be installed from CRAN or Github:
 
-```{r eval=TRUE,each=TRUE,message=FALSE,warning=FALSE,error=FALSE,include=FALSE}
+```{r eval=TRUE,message=FALSE,warning=FALSE,error=FALSE,include=TRUE,results='hide'}
 
 # Install packages
 install.packages("bookdown")

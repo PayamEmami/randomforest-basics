@@ -1,24 +1,24 @@
 ---
-output: 
+output:
 html_document:
       code_folding: hide
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 # Introduction {#intro}
 
 In this chapter, we are going to learn about random forest for supervised classification and regression.
 
-As you probably remember, supervised learning refers to methodologies that use some prior information about the data points (e.g. samples, patients) to create a way to connect that prior information to the data using some kind of model. 
+As you probably remember, supervised learning refers to methodologies that use some prior information about the data points (e.g. samples, patients) to create a way to connect that prior information to the data using some kind of model.
 In this context, classification deals with the situation where that prior information is of qualitative form. In this case, the example would be having a set of samples where half of them have a disease and the other half don't. Given this example, the objective is to find a way to say who has the disease and who does not. The previous example was only about two groups but classification can be applied to any number of groups. In a regression setting, our prior information is continuous (numerical). In this case, our aim is to figure out a way of connecting the data pattern with the numbers.
 
 Let's agree from now that you want to show our data with $X$ in which our samples are in the rows and our variables or measurements are in columns. We will also show our prior information with $Y$. So as described above, we want to come up with a way to map our $X$ to $Y$:
 
 $$Y=f(X)$$
 
-This basically says we are after a function $f$ that can get $X$ (our data) and output $Y$ (predictions). There are many methods for finding such a mapping. Linear/logistic regression, Neural Networks and Support Vector Machines are examples of such methods. RandomForest algorithm can also be considered in this category. However, RandomForest does not directly model $f$ in a mathematical sense but rather come up with $f$ using a series of segmentation as we will see soon.
+This basically says we are after a function $f$ that can get $X$ (our data) and output $Y$ (predictions). There are many methods for finding such a mapping. Linear/logistic regression, Neural Networks and Support Vector Machines are examples of such methods. Random forests algorithm can also be considered in this category. However, Random forest does not directly model $f$ in a mathematical sense but rather come up with $f$ using a series of segmentation as we will see soon.
 
-In order to learn how RandomForest works, we will need to go through a few central topics:
+In order to learn how random forest works, we will need to go through a few central topics:
 
 * Decision trees
 * Bagging
@@ -40,8 +40,8 @@ edges <- create_edge_df(from = c(1, 1, 2, 2, 3, 3,6,6),
                        rel = "leading to")
 
 graph <- create_graph(nodes_df = nodes, attr_theme = "tb",
-                      edges_df = edges, 
-                  ) 
+                      edges_df = edges,
+                  )
 
 render_graph(graph)
 ```
@@ -52,7 +52,7 @@ Each circle is a called a node and each line is called an edge. The very first n
 
 Decision trees are normally built through sequentially segmenting the data using simple rules until reaching some criteria for stooping. Let's try to develop an intuition about them using our dataset. Here we focus on classification and later extend it to the regression.
 
-In Figure \@ref(fig:groups1), we have plotted our AD data (only AD and controls). On the $x$ axis we have $A\beta$ and on the $y$ axis we have t tau. 
+In Figure \@ref(fig:fig-groups1), we have plotted our AD data (only AD and controls). On the $x$ axis we have $A\beta$ and on the $y$ axis we have t tau. 
 
 ```{r fig-groups1, fig.cap='The example of two variables measured on a number of samples.', fig.align='center',warning=FALSE,message=FALSE}
 
@@ -84,7 +84,7 @@ abline(v=250,col="red")
 
 ```
 
-Well! That is OK we have only AD patients on the left side of the red line but on the right side we have a huge mix of AD and controls. Maybe we could do a bit better. Let's put the line a bit further. 
+Well! That is OK we have only AD patients on the left side of the red line but on the right side we have a huge mix of AD and controls. Maybe we could do a bit better. Let's put the line a bit further.
 
 ```{r fig-groups3, fig.cap='The example of two variables measured on a number of samples. Cut on abeta=610', fig.align='center',warning=FALSE,message=FALSE}
 
@@ -100,7 +100,7 @@ abline(v=610,col="red",lwd=3)
 
 ```
 
-That is much better. Let's try to separate the data on the left and right sides of the line into two plots. 
+That is much better. Let's try to separate the data on the left and right sides of the line into two plots.
 
 ```{r fig-groups4, fig.cap='The example of two variables measured on a number of samples. Cut on abeta=610. The top plot shows all the data. The left figure shows the data points where abeta is <610 and the right plot shows the data points with abeta >=610', fig.align='center',warning=FALSE,message=FALSE}
 
@@ -128,12 +128,12 @@ plot(limited_data[limited_data$abeta>=610,variableIndex],limited_data[limited_da
 vps3 <- do.call(vpStack, baseViewports())
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "red"))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 ```
@@ -165,18 +165,18 @@ barplot(prop.table(table(limited_data[limited_data$abeta>=610,]$group)),main="ab
 vps3 <- do.call(vpStack, baseViewports())
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.1, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "red"))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.1, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 
 ```
 
-So we can conclude that the data is a bit cleaner or purer with respect to the group distribution. That is great. What we can do now? We can either say, that is good enough! Or we can continue with each of the segments. Let's continue and do one more round of segmentation. We start with the data points where $A\beta<610$. 
+So we can conclude that the data is a bit cleaner or purer with respect to the group distribution. That is great. What we can do now? We can either say, that is good enough! Or we can continue with each of the segments. Let's continue and do one more round of segmentation. We start with the data points where $A\beta<610$.
 
 ```{r fig-groups6, fig.cap='The example of two variables measured on a number of samples. Cut on abeta<610.', fig.align='center',warning=FALSE,message=FALSE}
 par(mfrow=c(1,1))
@@ -271,27 +271,27 @@ vps5 <- do.call(vpStack, baseViewports())
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "red"))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5,
              gp = gpar(col = "red"))
 
 ```
 
-If we read Figure \@ref(fig:fig-groups9) from top to bottom, we first started with all the data, we then segment the data based on abeta=610, giving us two segments of the original data. We then took the left segment (abeta<610) and did another round of segmentation giving us two more subgroups of the data. 
+If we read Figure \@ref(fig:fig-groups9) from top to bottom, we first started with all the data, we then segment the data based on abeta=610, giving us two segments of the original data. We then took the left segment (abeta<610) and did another round of segmentation giving us two more subgroups of the data.
 
 We can now continue with the right subgroup (abeta>=610) similar to the left subgroup. This subgroup looks quite clean already but we can probably make it slightly better but putting a cutoff on t-tau. This time we place our segmentation line on 475.
 
@@ -365,36 +365,36 @@ vps7 <- do.call(vpStack, baseViewports())
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "red"))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7,
              gp = gpar(col = "red"))
 
 
 ```
 
-We choose to stop now. We have a tree with four leaves (plots at the bottom) but how do we do prediction? We first have a look at the group distribution in the leaves of the tree. The first two leaves on the left have AD as the most common group so any new samples that can reach these leaves can be classified as AD. Similarly, any new sample that reaches the two right leaves can be classified as control. 
+We choose to stop now. We have a tree with four leaves (plots at the bottom) but how do we do prediction? We first have a look at the group distribution in the leaves of the tree. The first two leaves on the left have AD as the most common group so any new samples that can reach these leaves can be classified as AD. Similarly, any new sample that reaches the two right leaves can be classified as control.
 
 ```{r fig-groups12, fig.cap='The example of two variables measured on a number of samples. Cut on abeta=610 and abeta=480.', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
@@ -446,30 +446,30 @@ vps7 <- do.call(vpStack, baseViewports())
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "red"))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7,
              gp = gpar(col = "red"))
 
 grid.text("AD",x = unit(0.5, "npc"),y=unit(-0.25, "npc"),vp=vps4,gp = gpar(col="red"))
@@ -562,13 +562,13 @@ legend("topleft",legend = levels(as.factor(limited_data$group)),
 
 ```
 
-What is the probability of selecting an AD sample just by chance? Well, that is simple, we could just take the number of AD cases and divided by the total number of cases $p(AD)=\frac{\text{number of AD}}{\text{total number of cases}}=$`r round(sum(limited_data$group=="AD")/length(limited_data$group),2)`. Gini index ask what is the chance of randomly picking two data points from the same group? Well, if our draws are independent, then it's simply squared what we have calculated before so $p(AD)^2$. Now we have two classes, so we have to do this for the control as well: $p(control)=\frac{\text{number of controls}}{\text{total number of cases}}=$`r round(sum(limited_data$group=="control")/length(limited_data$group),2)`. We can now combine these two just by summing them up, giving us the probability of selecting two random samples with the same group: $p=p(AD)^2+p(control)^2$. What is the probability of selecting two points with different groups? That is simply $1-(p(AD)^2+p(control)^2)$. This is Gini impurity. It just tells the probability of classifying a random point incorrectly. We can extend this to any number of classes using:
+What is the probability of selecting an AD sample just by chance? Well, that is simple, we could just take the number of AD cases and divided by the total number of cases $p(AD)=\frac{\text{number of AD}}{\text{total number of cases}}=$ `r round(sum(limited_data$group=="AD")/length(limited_data$group),2)`. Gini index ask what is the chance of randomly picking two data points from the same group? Well, if our draws are independent, then it's simply squared what we have calculated before so $p(AD)^2$. Now we have two classes, so we have to do this for the control as well: $p(control)=\frac{\text{number of controls}}{\text{total number of cases}}=$ `r round(sum(limited_data$group=="control")/length(limited_data$group),2)`. We can now combine these two just by summing them up, giving us the probability of selecting two random samples with the same group: $p=p(AD)^2+p(control)^2$. What is the probability of selecting two points with different groups? That is simply $1-(p(AD)^2+p(control)^2)$. This is Gini impurity. It just tells the probability of classifying a random point incorrectly. We can extend this to any number of classes using:
 
 $$\text{Gini impurity}=1-\sum_{i}^{C}{p(i)^2}$$
 Where $i$ is a group or a class of observation. But how we are going to use this in decision trees?
 We first calculate Gini impurity for the whole dataset: In our case, Gini impurity is `r mltools::gini_impurity(limited_data$group)`.
 
-Now we have to decide which variable to select for segmenting our data and where to cut that variable. 
+Now we have to decide which variable to select for segmenting our data and where to cut that variable.
 In this stage, we will go through all variables and all different cut points and calculate the total impurity of the resulting segments.
 For example, let's take our previous example:
 
@@ -598,12 +598,12 @@ plot(limited_data[limited_data$abeta>=610,variableIndex],limited_data[limited_da
 vps3 <- do.call(vpStack, baseViewports())
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "red"))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 ```
@@ -614,7 +614,7 @@ Now we have the impurity of the segmentation. The question is how much of impuri
 
 ```{r}
 gini_gain<-function(x,group,cutoff){
-  
+
   if(is.character(cutoff))
   {
   original_gini<-mltools::gini_impurity(group)
@@ -622,7 +622,7 @@ gini_gain<-function(x,group,cutoff){
   gini_right<-mltools::gini_impurity(group[which(!x%in%cutoff)])
   weight_left<-length(group[which(x%in%cutoff)])/length(group)
    weight_right<-length(group[which(!x%in%cutoff)])/length(group)
-    
+
   }else{
   original_gini<-mltools::gini_impurity(group)
   gini_left<-mltools::gini_impurity(group[which(x<cutoff)])
@@ -638,16 +638,16 @@ gini_gain<-function(x,group,cutoff){
 
 ### Entropy and information gain
 
-Similar to the Gini index, entropy is an information theory metric that measures the impurity of a set of observations with respect to a grouping variable. The way to calculate entropy and information gain is very similar to Gini. 
+Similar to the Gini index, entropy is an information theory metric that measures the impurity of a set of observations with respect to a grouping variable. The way to calculate entropy and information gain is very similar to Gini.
 
 $$\text{Entropy}=1-\sum_{i}^{C}{p(i)log{_2}{p(i)}}$$
 Where $i$ can be any classes from a total of $C$ classes. The rest of the calculations are similar to Gini. We can calculate the information gain of a parent node simply but subtracting the entropy of the child nodes from the entropy of the parent. In practice, both of these methods result in very similar splits but Gini is faster and is often preferred for this reason.
 
 ## Regression
 
-A decision tree can also be used where your $y$ variable is continuous. In this case, you are doing a regression. The good part is that doing regression using decision trees is not that different from doing classification. The only thing we have to change is our measure for determining the split. In classification, we used Gini or entropy but in regression, we use Mean Square Error (MSE) or similar measures. 
+A decision tree can also be used where your $y$ variable is continuous. In this case, you are doing a regression. The good part is that doing regression using decision trees is not that different from doing classification. The only thing we have to change is our measure for determining the split. In classification, we used Gini or entropy but in regression, we use Mean Square Error (MSE) or similar measures.
 
-Let's have a look at our data again but this time instead of looking at the group (e.g., AD or control) we will have a look at the MMT score. 
+Let's have a look at our data again but this time instead of looking at the group (e.g., AD or control) we will have a look at the MMT score.
 
 
 ```{r fig-groups18, fig.cap='The example of two variables measured on a number of samples. The MMT score is shown as a gradient from red (lowest score) to blue (highest score)', fig.align='center',warning=FALSE,message=FALSE}
@@ -798,36 +798,36 @@ vps7 <- do.call(vpStack, baseViewports())
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "red"))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7,
              gp = gpar(col = "red"))
 
 
 ```
 
-Now we have to predict the MMT score for a patient with $A\beta=1080$ and t-tau=350. We start from the root. 
+Now we have to predict the MMT score for a patient with $A\beta=1080$ and t-tau=350. We start from the root.
 The root tells us to go to the left if $A\beta$ is less than 610 otherwise go to the right. Our $A\beta$ is 1080 so we go to the right. Now the tree tells us to go to the left if t-tau is less than 480 which is the case for our patient. We go to the left and end up in a leaf node. What is the predicted MMT score? It is simply the average of all the MMT scores in that leaf: `r mean(limited_data[limited_data$abeta>=610 & limited_data$t_tau<480,]$mmt)`. In this case, i know the true value of the MMT for that patient: 30. This is the path we have been going through:
 
 ```{r fig-groups22, fig.cap='The example of two variables measured on a number of samples. Cut on abeta=610 and abeta=480. Tha path is show by blue lines between the plots', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
@@ -897,35 +897,35 @@ vps7 <- do.call(vpStack, baseViewports())
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "blue",lwd=3))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6,
              gp = gpar(col = "blue",lwd=3))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7,
              gp = gpar(col = "red"))
 
 ```
 
-Alright. We now know how to build a decision tree and how to do predictions. But there is one more thing to know before going ahead. That is when do we stop growing the tree. If we really continue splitting the variables, in the end, we end up with a tree that has a leaf for each patient. When the tree is very large, it is more likely that it will capture noise instead of a global pattern of the data. In this case, we say that the tree is overfitted. Fortunately, there are ways to avoid that to some extent and they are called pruning methods. 
+Alright. We now know how to build a decision tree and how to do predictions. But there is one more thing to know before going ahead. That is when do we stop growing the tree. If we really continue splitting the variables, in the end, we end up with a tree that has a leaf for each patient. When the tree is very large, it is more likely that it will capture noise instead of a global pattern of the data. In this case, we say that the tree is overfitted. Fortunately, there are ways to avoid that to some extent and they are called pruning methods.
 
 ## Pre-pruning
 
@@ -984,30 +984,30 @@ vps7 <- do.call(vpStack, baseViewports())
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps3,
              gp = gpar(col = "red"))
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps1)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
              gp = gpar(col = "red"))
 
 
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps4,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps2)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps6,
              gp = gpar(col = "red"))
 
 grid.move.to(x = unit(0.5, "npc"), y = -0.4, vp = vps3)
-grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7, 
+grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps7,
              gp = gpar(col = "red"))
 
 grid.text("AD",x = unit(0.5, "npc"),y=unit(-0.25, "npc"),vp=vps4,gp = gpar(col="red"))
@@ -1020,21 +1020,21 @@ We see that the first two leaves on the left are both showing that AD is a major
 
 ## Post-pruning
 
-Post-pruning lets us grow the tree as much as we want but after the building is over it goes through the tree and prunes off the branches that are either redundant or might give us an overfitting problem. There are multiple methods for doing that. We will go through one of the most popular ones that is called "Weakest-Link Cutting". Before going forward we will have to introduce some math notations so it will be easier to follow the rest. 
+Post-pruning lets us grow the tree as much as we want but after the building is over it goes through the tree and prunes off the branches that are either redundant or might give us an overfitting problem. There are multiple methods for doing that. We will go through one of the most popular ones that is called "Weakest-Link Cutting". Before going forward we will have to introduce some math notations so it will be easier to follow the rest.
 
 Similar to other machine learning techniques, decision trees can also be thought to optimize a function. For example, in the case of classification, we can say that we want to minimize the misclassification error rate. We define misclassification of a single node on the training data by:
 
 $$R(t)=(1-max_j\frac{N_j(t)}{N(t)})\times \frac{N(t)}{N}$$
 
-where $max_j$ denote the class $j$ which has the majority of the memory of that node. $N_j(t)$ is the number of members with class $j$ at node $t$. $N(t)$ is the total number of samples at node $t$ and $N$ is the total number of samples in each dataset. Please remember that that $R(t)$ only concerns a node without considering the leaves. 
+where $max_j$ denote the class $j$ which has the majority of the memory of that node. $N_j(t)$ is the number of members with class $j$ at node $t$. $N(t)$ is the total number of samples at node $t$ and $N$ is the total number of samples in each dataset. Please remember that that $R(t)$ only concerns a node without considering the leaves.
 
 For a tree or a subtree, we define:
 
 $$R(T_k)=\sum_{t\in\tilde{T_k}}{R(t)}$$
 
-where $\tilde{T}$ is the set of leaves of the subtree root that $k$. 
+where $\tilde{T}$ is the set of leaves of the subtree root that $k$.
 
-What $R(t)$ tells you is that for any node, if you want to calculate the training error rate, calculate 1 minus the total number of samples with majority classes divide by the total number of samples at this node. Then weigh the whole thing by the proportion of the samples going to that node. For example, if I have data set with 20 samples where 10 of them are AD and the rest control. Then I make a decision tree giving me a node with 5 AD and 3 controls. The $R(t)$ of that node becomes $(1-\frac{5}{8})\times\frac{8}{20}=0.15$. 
+What $R(t)$ tells you is that for any node, if you want to calculate the training error rate, calculate 1 minus the total number of samples with majority classes divide by the total number of samples at this node. Then weigh the whole thing by the proportion of the samples going to that node. For example, if I have data set with 20 samples where 10 of them are AD and the rest control. Then I make a decision tree giving me a node with 5 AD and 3 controls. The $R(t)$ of that node becomes $(1-\frac{5}{8})\times\frac{8}{20}=0.15$.
 
 For calculating the $R(T_k)$, imagine i have a tree that looks like this:
 
@@ -1048,8 +1048,8 @@ edges <- create_edge_df(from = c(1, 1, 2, 2, 3, 3),
                        rel = "leading to")
 
 graph <- create_graph(nodes_df = nodes, attr_theme = "tb",
-                      edges_df = edges, 
-                  ) 
+                      edges_df = edges,
+                  )
 
 render_graph(graph)
 ```
@@ -1059,7 +1059,7 @@ I will start with the $6$ and calculate $R(6)=(1-\frac{2}{3})\times\frac{3}{20}=
 
 At this stage, we have to introduce our penalty term into $R(T)$ so it becomes:
 $$R_{\alpha}(T)=R(T)+\alpha.|\tilde{T}|$$
-where alpha is our complexity parameter and $|\tilde{T}|$ is the total number of leaf nodes in the tree. What this equation tells us is that, as we grow a bigger and bigger tree with a lot of leaf nodes, our misclassification error rate will increase. We should tune the cost complexity parameter to give us a good minimum $R_{\alpha}(T)$. How do we tune this? Weakest-Link Cutting is a method for doing that. As the name suggests we will have to identify the "weakest link" subtree in the whole tree and that is given by a subtree which the minimum of 
+where alpha is our complexity parameter and $|\tilde{T}|$ is the total number of leaf nodes in the tree. What this equation tells us is that, as we grow a bigger and bigger tree with a lot of leaf nodes, our misclassification error rate will increase. We should tune the cost complexity parameter to give us a good minimum $R_{\alpha}(T)$. How do we tune this? Weakest-Link Cutting is a method for doing that. As the name suggests we will have to identify the "weakest link" subtree in the whole tree and that is given by a subtree which the minimum of
 
 $$g(t)\left\{\begin{matrix}\frac{R(t)-R(T_t)}{|\tilde{T}_t|-1}, & t \notin \tilde{T}_t \\ +\infty, & t \in \tilde{T}_t\end{matrix}\right.$$
 
@@ -1076,8 +1076,8 @@ edges <- create_edge_df(from = c(1, 1, 2, 2, 3, 3),
                        rel = "leading to")
 
 graph <- create_graph(nodes_df = nodes, attr_theme = "tb",
-                      edges_df = edges, 
-                  ) 
+                      edges_df = edges,
+                  )
 
 render_graph(graph)
 ```
@@ -1113,8 +1113,8 @@ edges <- create_edge_df(from = c(1, 1, 2, 2),
                        rel = "leading to")
 
 graph <- create_graph(nodes_df = nodes, attr_theme = "tb",
-                      edges_df = edges, 
-                  ) 
+                      edges_df = edges,
+                  )
 
 render_graph(graph)
 ```
@@ -1146,8 +1146,8 @@ edges <- create_edge_df(from = c(1, 1),
                        rel = "leading to")
 
 graph <- create_graph(nodes_df = nodes, attr_theme = "tb",
-                      edges_df = edges, 
-                  ) 
+                      edges_df = edges,
+                  )
 
 render_graph(graph)
 ```
@@ -1159,19 +1159,19 @@ $$R(T_1)=((1-\frac{5}{9})\times \frac{9}{20})+((1-\frac{6}{11})\times \frac{11}{
 $$R(1)=(1-\frac{10}{20})\times\frac{20}{20}=0.5$$
 
 $$g(1)=\frac{0.5-0.45}{2-1}=0.05$$
-So we set the $\alpha_4=g(1)=0.05$ 
+So we set the $\alpha_4=g(1)=0.05$
 
-At the end of this story, we have   $\alpha_1=0$, $\alpha_2=0.05$,  $\alpha_3=0.15$ and $\alpha_4=0.05$. 
+At the end of this story, we have   $\alpha_1=0$, $\alpha_2=0.05$,  $\alpha_3=0.15$ and $\alpha_4=0.05$.
 Now we define rules for selecting the best tree:
 If $0\geq \alpha <0.05$ then we use our largest tree: T1.
 If $\alpha=0.05$ then we can use T2.
 If  $0.05< \alpha <0.15$ we use T3.
 
-The question is how do we select $\alpha$? The answer is cross-validation. Let's go through it briefly. 
+The question is how do we select $\alpha$? The answer is cross-validation. Let's go through it briefly.
 
 ## Cross validation
 
-Cross-validation refers to various different ways to estimate whether a statistical model can generalize to an independent dataset. The reason that we do cross-validation is that statistical models tend to fit the data points so perfectly that instead of capturing a global pattern of interest in the data, they start following the noise associated with individual data points. As a result of capturing noise, they cannot perform well when we give them a new sample to predict. 
+Cross-validation refers to various different ways to estimate whether a statistical model can generalize to an independent dataset. The reason that we do cross-validation is that statistical models tend to fit the data points so perfectly that instead of capturing a global pattern of interest in the data, they start following the noise associated with individual data points. As a result of capturing noise, they cannot perform well when we give them a new sample to predict.
 
 Let's have a look at an example where we want to predict t-tau based on p-tau:
 
@@ -1182,7 +1182,7 @@ plot(limited_data$p_tau,limited_data$t_tau,xlab = "p-tau",ylab = "t-tau")
 
 ```
 
-I will remove a chunk of the data randomly to be used for testing later.  For the reaming data, i will fit a flexible regression model (LOESS) and one with less flexibility. 
+I will remove a chunk of the data randomly to be used for testing later.  For the reaming data, i will fit a flexible regression model (LOESS) and one with less flexibility.
 
 ```{r fig-groups29, fig.cap='plot of p-tau vs t-tau using two models. The model on the left has span of 0.1 and the model on the right has the span of 0.6.', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
@@ -1215,7 +1215,7 @@ lines(limited_data4_training$p_tau[j],lw1$fitted[j],col="red",lwd=3)
 
 ```
 
-It is clear that the flexible model on the left is following individual data point and lower $R^2=`r round(cor1,digits = 2)`$ whereas the restricted model on the right captures the pattern and get a better $R^2=`r round(cor2,digits = 2)`$. Cross-validation can be used to figure out whether our model suffers from the sample problem or not. 
+It is clear that the flexible model on the left is following individual data point and lower $R^2=`r round(cor1,digits = 2)`$ whereas the restricted model on the right captures the pattern and get a better $R^2=`r round(cor2,digits = 2)`$. Cross-validation can be used to figure out whether our model suffers from the sample problem or not.
 
 The way that the cross-validation is performed is to randomly divide the dataset into several smaller subsets. They do the statistical modelling several times, each time, one subset is used as a validation set and the rest for training. Formally, we divide our dataset into $k$ different subsets and do the following
 
@@ -1225,7 +1225,7 @@ The way that the cross-validation is performed is to randomly divide the dataset
 3. Take the validation set and measure the performance of the model
 4. Repeat steps one to 3 but take another set as validation
 
-In the end, the error of the model is the average of all the errors from the cross-validation scheme. 
+In the end, the error of the model is the average of all the errors from the cross-validation scheme.
 
 Now the question is, how does this have to do with complexity parameters and decision trees?
 
@@ -1279,7 +1279,7 @@ We are now almost ready to go through bagging!
 # Bagging
 ## Bias-variance
 
-Let's first think about the overfitting problem we went through before. 
+Let's first think about the overfitting problem we went through before.
 
 ```{r fig-groups32, fig.cap='plot of p-tau vs t-tau using two models. The model on the left has span of 0.1 and the model on the right has the span of 0.6.', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
@@ -1311,7 +1311,7 @@ lines(limited_data4_training$p_tau[j],lw1$fitted[j],col="red",lwd=3)
 
 ```
 
-The model on the left fits the training data really good but it performs poorly on the validation set $R^2=0.55$ whereas the model on the right has a poorer fit on the training data but achieves better performance on the validation set. We tend to say that the model has low bias high variance. That is because it pays too much attention to the training data so that it fails to generalize to what it has not seen before. Decision trees suffer from the same problem. If trained too much, they will have a fantastically low bias but very high variance. The idea behind bagging is to reduce this variance through training multiple models on the same data. Let's see how it works and why it works. 
+The model on the left fits the training data really good but it performs poorly on the validation set $R^2=0.55$ whereas the model on the right has a poorer fit on the training data but achieves better performance on the validation set. We tend to say that the model has low bias high variance. That is because it pays too much attention to the training data so that it fails to generalize to what it has not seen before. Decision trees suffer from the same problem. If trained too much, they will have a fantastically low bias but very high variance. The idea behind bagging is to reduce this variance through training multiple models on the same data. Let's see how it works and why it works.
 
 ## Bootstrap aggregating
 
@@ -1320,11 +1320,11 @@ The idea behind bootstrap aggregating is to subsample the data (with replacement
 More formally, if we assume that we have $N$ samples in our datasets we do the following:
 
   1. Take a random sample of size $N$ with replacement from the original dataset.
-  
+
   2. Train a decision tree on this subset (no pruning here. We want this to have a relatively high bias).
-  
+
   3. Repeat the step 1 and 2 many many times.
-  
+
   4. Predict each sample to a final group by a majority vote over the set of trees. For example, if we have 500 trees and 400 of them say sample $x$ is AD, then we use this as the predicted group for the sample $x$. For regression, we simply take the mean of all the predicted values of all the 500 trees.
 
 Please note that we let each tree to grow reasonably large to capture each tree point of view of our problem. This often leads to high variance in each tree but then we the averaging or the majority of the vote will reduce this variance to a reasonable number. More formally if we define our variance as $\sigma^2$ for a single variable, having $m$ variables (independently and identically distributed) will give us $\frac{\sigma^2}{m}$. In the case of bagging, since we draw from the same pool of samples, we don't have independently distributed samples so we have to take correlation into account. Thus our variance of average becomes $p\sigma^2+\frac{1-p}{m}\sigma^2$ where $p$ is pairwise correlation between different trees and $\sigma^2$ is the variance. It is easy to see that if we increase $m$ to a very large number (total number of resampling) we end up have our variance as $p\sigma^2$. That means that unless we have a perfect correlation between the trees, we will reduce the variance and as the result getting better predictions.
@@ -1335,7 +1335,7 @@ One cool thing about bagging is that it comes with almost a free cross-validatio
 
 ## Application
 
-In R, we can use, `ipred` together with `rpart` package to perform bagging. 
+In R, we can use, `ipred` together with `rpart` package to perform bagging.
 
 ```{r fig-groups33, fig.cap='Prediction accuracy of normal tree vs. bagging. Blue bar: Bagging, red bar: Normal. The plots with red background are correct classification', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
@@ -1421,15 +1421,15 @@ Let's say we have a dataset with $N$ number of samples and $p$ number of feature
   2. Now for finding a split, we take a random sample of $k$ variables from $p$ without replacement and use only this subset of variables to find the best split. This is the *random* part of random forest.
 
   3. To further split this tree, repeat step 2 until the tree is large enough.
-  
+
   4. Repeat steps 1 to 3 many times to produce more trees. This is the forest part of random forest
-  
+
   5. Similar to bagging, we predict each sample to a final group by a majority vote over the set of trees. For example, if we have 500 trees and 400 of them say sample $x$ is AD, then we use this as the predicted group for the sample $x$. For regression, we simply take the mean of all the predicted values of all the 500 trees.
 
 
-So the only additional component here is focusing on a random subset of our features or variables when doing a split. It should be apparent now that random forests can reduce the variance as the direct result of bagging and random splits. In addition, they can also deal with very large datasets especially when the number of variables is large and even greater than the number of samples. Finally, random forests can highlight out-competed variables. The effects of these variables are often cancelled out by other more dominant variables. However, with random forests (with large trees), they will have a chance of to a node in at least some of the trees. 
+So the only additional component here is focusing on a random subset of our features or variables when doing a split. It should be apparent now that random forests can reduce the variance as the direct result of bagging and random splits. In addition, they can also deal with very large datasets especially when the number of variables is large and even greater than the number of samples. Finally, random forests can highlight out-competed variables. The effects of these variables are often cancelled out by other more dominant variables. However, with random forests (with large trees), they will have a chance of to a node in at least some of the trees.
 
-We are now ready to start coding random forests. We will be used `randomForest` function from `randomForest` package. 
+We are now ready to start coding random forests. We will be used `randomForest` function from `randomForest` package.
 
 
 ```{r fig-groups34, fig.cap='Prediction accuracy of normal tree vs. bagging vs. random forest. Blue bar: Bagging, red bar: Normal, green bar: random forest. The plots with red background are correct classification', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
@@ -1512,13 +1512,13 @@ Random forests just like many other statistical models have some parameters and 
 
 * The number of samples in each leaf node (`nodesize` in `randomForest` package).
 * Number of trees  (`ntree` in `randomForest` package).
-* Number of variables to consider at each split (`mtry` in `randomForest` package). 
+* Number of variables to consider at each split (`mtry` in `randomForest` package).
 
 Please note that we don't do pruning in random forests and `nodesize` should be used with care to not building too shallow trees. In the next section, we try to tune `mtry` and `ntree`.
 
 ## Tuning parameters for random forests
 
-As we discussed before, cross-validation can be used to tune parameters for statistical models. We can also use them for tuning `mtry` and `ntree`. An easier way to do so is to use out of bag error. We show both of our approaches here. Although there are packages like `caret` that automate this process, we use a manual approach so you can see how it is done. 
+As we discussed before, cross-validation can be used to tune parameters for statistical models. We can also use them for tuning `mtry` and `ntree`. An easier way to do so is to use out of bag error. We show both of our approaches here. Although there are packages like `caret` that automate this process, we use a manual approach so you can see how it is done.
 
 ```{r fig-groups35, fig.cap='Paramemter tuning for mtry and ntree. Out of bag errors (A) are compared with cross validation (B)', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
@@ -1547,7 +1547,7 @@ hp_grid <- expand.grid(
 
 # loop over each hpyper parameter
 for(i in 1:nrow(hp_grid)) {
-  
+
   # train model
   set.seed(i)
 rf_model<-randomForest::randomForest(group ~ ., data = limited_data4_training,ntree=hp_grid$ntree[i],mtry=hp_grid$mtry[i],importance=T)
@@ -1574,27 +1574,27 @@ cowplot::plot_grid(oob_plot,cv_plot,labels = c("A","B"))
 
 ```
 
-In the plot above, we have plotted out of bag error (OOB) and cross validation error (CV) vs `mtry`. In out of bag error (plot A), we see that `mtry`: `r hp_grid[which.min(hp_grid$OOB),"mtry"]` and `ntree`: `r as.character(hp_grid[which.min(hp_grid$OOB),"ntree"])` have minimize the error rate: `r as.character(hp_grid[which.min(hp_grid$OOB),"OOB"])`. In plot B, we present the median error rate of 5-fold cross validation. We see that `mtry`: `r hp_grid[which.min(hp_grid$CV),"mtry"]` and `ntree`: `r as.character(hp_grid[which.min(hp_grid$CV),"ntree"])` have minimize the error rate: `r as.character(hp_grid[which.min(hp_grid$CV),"CV"])`. So `r ifelse(as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])>as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"]),"out of bag","cross validation")` has minimize the error rate so we can probably use the parameters suggested by `r ifelse(as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])>as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"]),"out of bag","cross validation")`. In practice however, having too few samples, out of bag is probably more preferable that cross validation. 
+In the plot above, we have plotted out of bag error (OOB) and cross validation error (CV) vs `mtry`. In out of bag error (plot A), we see that `mtry`: `r hp_grid[which.min(hp_grid$OOB),"mtry"]` and `ntree`: `r as.character(hp_grid[which.min(hp_grid$OOB),"ntree"])` have minimize the error rate: `r as.character(hp_grid[which.min(hp_grid$OOB),"OOB"])`. In plot B, we present the median error rate of 5-fold cross validation. We see that `mtry`: `r hp_grid[which.min(hp_grid$CV),"mtry"]` and `ntree`: `r as.character(hp_grid[which.min(hp_grid$CV),"ntree"])` have minimize the error rate: `r as.character(hp_grid[which.min(hp_grid$CV),"CV"])`. So `r ifelse(as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])>as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"]),"out of bag","cross validation")` has minimize the error rate so we can probably use the parameters suggested by `r ifelse(as.numeric(hp_grid[which.min(hp_grid$CV),"CV"])>as.numeric(hp_grid[which.min(hp_grid$OOB),"OOB"]),"out of bag","cross validation")`. In practice however, having too few samples, out of bag is probably more preferable that cross validation.
 
 ## Variable importance
 
-Random forests are not only used for doing prediction but they provide a very powerful framework for variable selection. Variable selection or feature importance refers to the process of finding what variables have the most influence on the outcome of the model. So a researcher might as if I can diagnose a type of cancer with very good accuracy what are the genes that are more important for doing that prediction? This type of question can be answered by variable selection. In random forests, there are two major ways to find the importance of a variable. One is based on the mean increase in prediction error via permutation and the second one is the decrease in node impurity. Both of these can be calculated either by setting `importance=TRUE` in the main `randomForest` function or by directly using `importance` function. Let's first talk about how they are calculated. 
+Random forests are not only used for doing prediction but they provide a very powerful framework for variable selection. Variable selection or feature importance refers to the process of finding what variables have the most influence on the outcome of the model. So a researcher might as if I can diagnose a type of cancer with very good accuracy what are the genes that are more important for doing that prediction? This type of question can be answered by variable selection. In random forests, there are two major ways to find the importance of a variable. One is based on the mean increase in prediction error via permutation and the second one is the decrease in node impurity. Both of these can be calculated either by setting `importance=TRUE` in the main `randomForest` function or by directly using `importance` function. Let's first talk about how they are calculated.
 
 ### Feature importance by permutation
 
 To calculate the feature importance by permutation, one can use both cross-validation and out of bag errors. Here we focus on out of bag errors:
 
 Let's say that we trained a model $f$ on our data $X$ on response $y$. As we said before, we can calculate out of bag errors (OOB) for this model. Let's call this $OOB^{\ orig}$ and calculate it using an error measure $E$ so: $OOB^{\ orig}=E(y-f(X))$.
-Now, for each of the features $i=1,...,p$, we do a random permutation (shuffling) and put it back in the original matrix. Let's call this matrix $X^{perm}_i$. This means all other features are original ones except feature $i$ that has been randomly shuffled. 
-We can now calculate the out of bag error for this new data $OOB^{\ perm}_i=E(y-f(X^{perm}_i))$. In the last step, we calculate the difference between the original out of bag error vs. the permuted out of bag error: $dif_i=OOB^{\ perm}_i-OOB^{\ orig}$. 
+Now, for each of the features $i=1,...,p$, we do a random permutation (shuffling) and put it back in the original matrix. Let's call this matrix $X^{perm}_i$. This means all other features are original ones except feature $i$ that has been randomly shuffled.
+We can now calculate the out of bag error for this new data $OOB^{\ perm}_i=E(y-f(X^{perm}_i))$. In the last step, we calculate the difference between the original out of bag error vs. the permuted out of bag error: $dif_i=OOB^{\ perm}_i-OOB^{\ orig}$.
 We do this for all the features, one at a time giving us the list of permuted $OOB^{\ perm}_i ,\ i=1,...,p$.
-In the last step, we normalize this by the standard deviation of  $OOB^{\ perm}$ and sorting by descending order. 
+In the last step, we normalize this by the standard deviation of  $OOB^{\ perm}$ and sorting by descending order.
 
-To put it simply, we ask the question that if we shuffle this specific feature, how much our model become poorer than the original model. If a feature makes our model becomes worse a lot, it has more influence on the model thus it is more important. By sorting these influences we can rank our variables according to their importance. One great this about this way of finding feature importance is that we can also calculate $OOB$ not only for all the samples but for each class of the samples (e.g., AD or control) giving us feature importance for predicting a specific group of samples. 
+To put it simply, we ask the question that if we shuffle this specific feature, how much our model become poorer than the original model. If a feature makes our model becomes worse a lot, it has more influence on the model thus it is more important. By sorting these influences we can rank our variables according to their importance. One great this about this way of finding feature importance is that we can also calculate $OOB$ not only for all the samples but for each class of the samples (e.g., AD or control) giving us feature importance for predicting a specific group of samples.
 
 ### Feature importance by impurity
 
-Feature importance by impurity does not take into account the out of bag error or cross-validation but rather asks the question of how much throughout the tree a specific feature has been decreasing the impurity. 
+Feature importance by impurity does not take into account the out of bag error or cross-validation but rather asks the question of how much throughout the tree a specific feature has been decreasing the impurity.
 
 If you remember, we calculate a node Gini impurity by $\text{Gini impurity}=1-\sum_{i}^{C}{p(i)^2}$ and entropy by $\text{Entropy}=1-\sum_{i}^{C}{p(i)log{_2}{p(i)}}$, for classification and for regression by $MSE=\frac{1}{n}\sum_{i=1}^{n}{(y_i-\bar{y_i})^2}$ or by residual sum of squares. At this stage, no matter what we use, we want to call this $IMP_j$ where $j$ can be any node in the tree. And if you remember, we calculate the weighted removed impurity of a parent node as:
 
@@ -1602,7 +1602,7 @@ $$RI_j=W_j\times IMP_j-W_{left_j}\times IMP_{left_j}-W_{right_j}\times IMP_{righ
 
 where $W_{j}$ is the weight of the parent node (e.g $\frac{N(j)}{N}$; proportion data coming into node $j$). $W_{left_j}$ is the weight of the left child node $j$ (see aggregating Gini above). Please note that in some implementations $W_j$ has been removed.
 
-Now what we have is the decrease in impurity for each node but we are interested in features not nodes! We define another measure as average feature impurity decrease: 
+Now what we have is the decrease in impurity for each node but we are interested in features not nodes! We define another measure as average feature impurity decrease:
 
 $$FIMP_i=\frac{\sum_{j \in N_i}{RI_j}}{\sum_{k \in t}{RI_k}}$$
 Where $N_i$ is all the nodes where feature $i$ has been used to split the node and $t$ is the set of all nodes in the tree. We can then normalize this $FIMP_i$ by the sum of all $FIMP_i$ giving us:
@@ -1611,9 +1611,9 @@ $$FIMP^{\ norm}_i=\frac{FIMP_i}{\sum_i^p{FIMP_i}}$$
 Finally, as we build multiple trees in random forest, we have to calculate the average feature importance across all the trees:
 
 $$FI_i=\frac{\sum_{j\in trees}{{FIMP^{\ norm}_{i,j}}}}{|T|}$$
-where $FI_i$ is the feature importance of variable $i$, $FIMP^{\ norm}_{i,j}$ is the normalized $FIMP$ for feature $i$ in tree $j$ and $|T|$ is the total number of trees. What the whole thing is telling us is that for each feature in each tree, we calculate the average decrease in impurity, sum it over the trees and normalize it by the number of trees. 
+where $FI_i$ is the feature importance of variable $i$, $FIMP^{\ norm}_{i,j}$ is the normalized $FIMP$ for feature $i$ in tree $j$ and $|T|$ is the total number of trees. What the whole thing is telling us is that for each feature in each tree, we calculate the average decrease in impurity, sum it over the trees and normalize it by the number of trees.
 
-Please note that there are many different implementation feature importance but in principle, most of them are very similar to what we have discussed so far. 
+Please note that there are many different implementation feature importance but in principle, most of them are very similar to what we have discussed so far.
 
 We can now have a look at our feature importance in random forest:
 
@@ -1639,7 +1639,7 @@ Both mean decrease in accuracy (left plot) and impurity base (right plot) are pl
 
 ## How to use random forest in R
 
-There are many packages for random forest. We have been using `randomForest` package in R that does a decent job and is fast enough for most of the applications. There are other implementations that you can check out such as `ranger` that is even faster. We here go through `randomForest` package briefly. 
+There are many packages for random forest. We have been using `randomForest` package in R that does a decent job and is fast enough for most of the applications. There are other implementations that you can check out such as `ranger` that is even faster. We here go through `randomForest` package briefly.
 
 ### Data
 
@@ -1649,7 +1649,7 @@ Our data has to be in a data.frame where features are in the columns and samples
 head(limited_data4_training)
 ```
 
-You can set various parameters in `randomForest` but probably the most relevant ones are `mtry`, `ntree` and `importance`. We have already covered all of these and in one command you can run `randomForest::randomForest(group ~ ., data = limited_data4_training,mtry=5,ntree=100)`. 
+You can set various parameters in `randomForest` but probably the most relevant ones are `mtry`, `ntree` and `importance`. We have already covered all of these and in one command you can run `randomForest::randomForest(group ~ ., data = limited_data4_training,mtry=5,ntree=100)`.
 
 ```{r}
 
@@ -1707,7 +1707,7 @@ randomForest::varImpPlot(rf_model)
 # Summary
 
 Random forests are extremely powerful algorithms that can be used both for prediction and feature selection. They don't require much data pre-treatment, they are generally robust with respect to scales of the data. They can handle missing values and can be used both for classification and regression. However, trees, in general, can result in very different models if the training data change. So to get a good estimate of feature importance and prediction accuracy it is highly recommended to cross-validate the trees.
-Despite some arguing that random forests do produce 'good' predictions, there are variants that are very powerful and in fact, they were winning many machine learning competitions in many different fields. If you are interested you can look at gradient boosting for decision trees. Like any other modelling technique, random forests are just another algorithm, as a researcher, it is our job to make sure that we use them in a right way. Please always do validation of the model before publishing your results! 
+Despite some arguing that random forests do produce 'good' predictions, there are variants that are very powerful and in fact, they were winning many machine learning competitions in many different fields. If you are interested you can look at gradient boosting for decision trees. Like any other modelling technique, random forests are just another algorithm, as a researcher, it is our job to make sure that we use them in a right way. Please always do validation of the model before publishing your results!
 
 # Exercises
 
@@ -1721,7 +1721,7 @@ When downloaded, you can load the data into `R` using the `load` function:
 load("PATH_TO_FOLDER/srbct.rda")
 ```
 
-Please note that, `PATH_TO_FOLDER` *must* be change to the path you downloaded the file into. 
+Please note that, `PATH_TO_FOLDER` *must* be change to the path you downloaded the file into.
 
 After loading the data, we will have a variable called `srbct` which is a `list` containing the following:
 
@@ -1739,10 +1739,9 @@ srbct_data<-data.frame(srbct$gene,class=srbct$class)
 
 We are going to use random forests to find variables that are important for discriminating the 4 classes.
 
-1. Randomly split your data into a training (80 percent of the data) and testing set (20 percent of the data). 
+1. Randomly split your data into a training (80 percent of the data) and testing set (20 percent of the data).
 2. Tune a hyperparameter (`mtry`) of random forest (only on training data)
-3. Fit a random forest model to the training data and find its accuracy (either out of bag error or cross validation. up to you!)
-4. FInd the accuracy of predictiing the test set
+3. Fit a random forest model to the training data and find its error rate (either out of bag error or cross validation. up to you!)
+4. What is the accuracy of predicting the test set?
 5. Find the top 10 most important genes for discriminating all the classes
 6. What are the top 10 genes for predicting *EWS* class
-
