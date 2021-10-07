@@ -1026,7 +1026,7 @@ Similar to other machine learning techniques, decision trees can also be thought
 
 $$R(t)=(1-max_j\frac{N_j(t)}{N(t)})\times \frac{N(t)}{N}$$
 
-where $max_j$ denote the class $j$ which has the majority of the memory of that node. $N_j(t)$ is the number of members with class $j$ at node $t$. $N(t)$ is the total number of samples at node $t$ and $N$ is the total number of samples in each dataset. Please remember that that $R(t)$ only concerns a node without considering the leaves.
+where $max_j$ denote the class $j$ which has the majority of the members of that node. $N_j(t)$ is the number of members with class $j$ at node $t$. $N(t)$ is the total number of samples at node $t$ and $N$ is the total number of samples in each dataset. Please remember that that $R(t)$ only concerns a node without considering the leaves.
 
 For a tree or a subtree, we define:
 
@@ -1369,15 +1369,15 @@ acc_bagging<-mean(limited_data4_testing$group == predict(bagged_model,limited_da
 acc_tree<-mean(limited_data4_testing$group == predict(tree_model,limited_data4_testing,type = "class"))
 
 
-
-confMatrix_bagging<-rfUtilities::accuracy(predict(bagged_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
-confMatrix_tree<-rfUtilities::accuracy(predict(tree_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
-
+confMatrix_bagging<-caret::confusionMatrix(predict(bagged_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
+confMatrix_tree<-caret::confusionMatrix(predict(tree_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
 
 
-plot_data<-rbind(data.frame(reshape::melt(confMatrix_bagging$confusion),Method="Bagging"),
-      data.frame(reshape::melt(confMatrix_tree$confusion),Method="Normal"))
 
+plot_data<-rbind(data.frame(reshape::melt(confMatrix_bagging$table),Method="Bagging"),
+      data.frame(reshape::melt(confMatrix_tree$table),Method="Normal"))
+
+names(plot_data)[1:2]<-c("x","y")
 plot_data$Color=NA
 plot_data$Color[plot_data$x==plot_data$y]<-"red"
 library(ggplot2)
@@ -1471,15 +1471,15 @@ acc_tree<-mean(limited_data4_testing$group == predict(tree_model,limited_data4_t
 acc_rf<-mean(limited_data4_testing$group == predict(rf_model,limited_data4_testing[,-7],type = "class"))
 
 
-confMatrix_bagging<-rfUtilities::accuracy(predict(bagged_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
-confMatrix_tree<-rfUtilities::accuracy(predict(tree_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
-confMatrix_rf<-rfUtilities::accuracy(predict(rf_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
+confMatrix_bagging<-caret::confusionMatrix(predict(bagged_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
+confMatrix_tree<-caret::confusionMatrix(predict(tree_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
+confMatrix_rf<-caret::confusionMatrix(predict(rf_model,limited_data4_testing[,-7],type = "class"),limited_data4_testing$group )
 
 
 
-plot_data<-rbind(data.frame(reshape::melt(confMatrix_bagging$confusion),Method="Bagging"),
-      data.frame(reshape::melt(confMatrix_tree$confusion),Method="Normal"),data.frame(reshape::melt(confMatrix_rf$confusion),Method="RandomForest"))
-
+plot_data<-rbind(data.frame(reshape::melt(confMatrix_bagging$table),Method="Bagging"),
+      data.frame(reshape::melt(confMatrix_tree$table),Method="Normal"),data.frame(reshape::melt(confMatrix_rf$table),Method="RandomForest"))
+names(plot_data)[1:2]<-c("x","y")
 plot_data$Color=NA
 plot_data$Color[plot_data$x==plot_data$y]<-"red"
 library(ggplot2)
@@ -1560,7 +1560,7 @@ CV_rf <- sapply(1:5, function(x){
   set.seed(i*x)
   model <- randomForest::randomForest(group ~ ., data =limited_data4_training[folds != x,] ,ntree=hp_grid$ntree[i],mtry=hp_grid$mtry[i],importance=T)
 
-  return( 100-rfUtilities::accuracy(predict(model,limited_data4_training[folds== x,],type="response"), limited_data4_training[folds== x,"group"] )$PCC)
+  return( 100-(caret::confusionMatrix(predict(model,limited_data4_training[folds== x,],type="response"), limited_data4_training[folds== x,"group"] )$overall[1]*100))
   })
 
 hp_grid$OOB[i] <- round(rf_model$err.rate[rf_model$ntree,"OOB"] * 100, digits = 2)
@@ -1681,11 +1681,11 @@ head(predicted_class)
 
 ```
 
-We can use `accuracy` function from `rfUtilities` package to calculate some accuracy measures. This function gets the predicted and true values `rfUtilities::accuracy(predicted_class,true_class)`
+We can use `confusionMatrix` function from `caret` package to calculate some accuracy measures. This function gets the predicted and true values `caret::confusionMatrix((predicted_class,true_class)`
 
 ```{r}
 
-rfUtilities::accuracy(predicted_class, limited_data4_testing$group)
+caret::confusionMatrix(predicted_class, limited_data4_testing$group)
 ```
 
 To tune mtry we can use `tuneRF` from `randomForest`. This function gets multiple arguments including `x`: data without the class (group) column, `y`: group columns, `mtryStart`: starting value of mtry, `ntreeTry`: number of trees to build. It will use out of bag error to calculate tuned value for mtry. However, for tuning other parameters we might need to write our own function or use other packages such as `caret`.
