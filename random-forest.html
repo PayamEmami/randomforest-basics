@@ -24,7 +24,7 @@
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-10-06" />
+<meta name="date" content="2021-10-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -591,15 +591,15 @@ We said that if we have a large <span class="math inline">\(m\)</span>, we will 
 <span id="cb40-35"><a href="random-forest.html#cb40-35"></a>acc_rf&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
 <span id="cb40-36"><a href="random-forest.html#cb40-36"></a></span>
 <span id="cb40-37"><a href="random-forest.html#cb40-37"></a></span>
-<span id="cb40-38"><a href="random-forest.html#cb40-38"></a>confMatrix_bagging&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
-<span id="cb40-39"><a href="random-forest.html#cb40-39"></a>confMatrix_tree&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
-<span id="cb40-40"><a href="random-forest.html#cb40-40"></a>confMatrix_rf&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb40-38"><a href="random-forest.html#cb40-38"></a>confMatrix_bagging&lt;-caret<span class="op">::</span><span class="kw">confusionMatrix</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb40-39"><a href="random-forest.html#cb40-39"></a>confMatrix_tree&lt;-caret<span class="op">::</span><span class="kw">confusionMatrix</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb40-40"><a href="random-forest.html#cb40-40"></a>confMatrix_rf&lt;-caret<span class="op">::</span><span class="kw">confusionMatrix</span>(<span class="kw">predict</span>(rf_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
 <span id="cb40-41"><a href="random-forest.html#cb40-41"></a></span>
 <span id="cb40-42"><a href="random-forest.html#cb40-42"></a></span>
 <span id="cb40-43"><a href="random-forest.html#cb40-43"></a></span>
-<span id="cb40-44"><a href="random-forest.html#cb40-44"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
-<span id="cb40-45"><a href="random-forest.html#cb40-45"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>),<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_rf<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;RandomForest&quot;</span>))</span>
-<span id="cb40-46"><a href="random-forest.html#cb40-46"></a></span>
+<span id="cb40-44"><a href="random-forest.html#cb40-44"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>table),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
+<span id="cb40-45"><a href="random-forest.html#cb40-45"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>table),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>),<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_rf<span class="op">$</span>table),<span class="dt">Method=</span><span class="st">&quot;RandomForest&quot;</span>))</span>
+<span id="cb40-46"><a href="random-forest.html#cb40-46"></a><span class="kw">names</span>(plot_data)[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]&lt;-<span class="kw">c</span>(<span class="st">&quot;x&quot;</span>,<span class="st">&quot;y&quot;</span>)</span>
 <span id="cb40-47"><a href="random-forest.html#cb40-47"></a>plot_data<span class="op">$</span>Color=<span class="ot">NA</span></span>
 <span id="cb40-48"><a href="random-forest.html#cb40-48"></a>plot_data<span class="op">$</span>Color[plot_data<span class="op">$</span>x<span class="op">==</span>plot_data<span class="op">$</span>y]&lt;-<span class="st">&quot;red&quot;</span></span>
 <span id="cb40-49"><a href="random-forest.html#cb40-49"></a><span class="kw">library</span>(ggplot2)</span>
@@ -678,7 +678,7 @@ Figure 5.1: Prediction accuracy of normal tree vs. bagging vs. random forest. 
 <span id="cb41-36"><a href="random-forest.html#cb41-36"></a>  <span class="kw">set.seed</span>(i<span class="op">*</span>x)</span>
 <span id="cb41-37"><a href="random-forest.html#cb41-37"></a>  model &lt;-<span class="st"> </span>randomForest<span class="op">::</span><span class="kw">randomForest</span>(group <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span>limited_data4_training[folds <span class="op">!=</span><span class="st"> </span>x,] ,<span class="dt">ntree=</span>hp_grid<span class="op">$</span>ntree[i],<span class="dt">mtry=</span>hp_grid<span class="op">$</span>mtry[i],<span class="dt">importance=</span>T)</span>
 <span id="cb41-38"><a href="random-forest.html#cb41-38"></a></span>
-<span id="cb41-39"><a href="random-forest.html#cb41-39"></a>  <span class="kw">return</span>( <span class="dv">100</span><span class="op">-</span>rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(model,limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,],<span class="dt">type=</span><span class="st">&quot;response&quot;</span>), limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,<span class="st">&quot;group&quot;</span>] )<span class="op">$</span>PCC)</span>
+<span id="cb41-39"><a href="random-forest.html#cb41-39"></a>  <span class="kw">return</span>( <span class="dv">100</span><span class="op">-</span>(caret<span class="op">::</span><span class="kw">confusionMatrix</span>(<span class="kw">predict</span>(model,limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,],<span class="dt">type=</span><span class="st">&quot;response&quot;</span>), limited_data4_training[folds<span class="op">==</span><span class="st"> </span>x,<span class="st">&quot;group&quot;</span>] )<span class="op">$</span>overall[<span class="dv">1</span>]<span class="op">*</span><span class="dv">100</span>))</span>
 <span id="cb41-40"><a href="random-forest.html#cb41-40"></a>  })</span>
 <span id="cb41-41"><a href="random-forest.html#cb41-41"></a></span>
 <span id="cb41-42"><a href="random-forest.html#cb41-42"></a>hp_grid<span class="op">$</span>OOB[i] &lt;-<span class="st"> </span><span class="kw">round</span>(rf_model<span class="op">$</span>err.rate[rf_model<span class="op">$</span>ntree,<span class="st">&quot;OOB&quot;</span>] <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="dt">digits =</span> <span class="dv">2</span>)</span>
@@ -806,34 +806,49 @@ Figure 5.3: Feature importance for random forests
 ##                 130                  98 
 ## MCI/non-ADConverter                  AD 
 ## Levels: AD control FTD MCI/ADConverter MCI/non-ADConverter</code></pre>
-<p>We can use <code>accuracy</code> function from <code>rfUtilities</code> package to calculate some accuracy measures. This function gets the predicted and true values <code>rfUtilities::accuracy(predicted_class,true_class)</code></p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="random-forest.html#cb49-1"></a>rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(predicted_class, limited_data4_testing<span class="op">$</span>group)</span></code></pre></div>
-<pre><code>## Accuracy (PCC): 71% 
+<p>We can use <code>confusionMatrix</code> function from <code>caret</code> package to calculate some accuracy measures. This function gets the predicted and true values <code>caret::confusionMatrix((predicted_class,true_class)</code></p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="random-forest.html#cb49-1"></a>caret<span class="op">::</span><span class="kw">confusionMatrix</span>(predicted_class, limited_data4_testing<span class="op">$</span>group)</span></code></pre></div>
+<pre><code>## Confusion Matrix and Statistics
 ## 
-## Cohen&#39;s Kappa: 0.5921 
-## 
-## Users accuracy: 
-##                  AD             control                 FTD     MCI/ADConverter 
-##                83.3                94.1                50.0                 0.0 
-## MCI/non-ADConverter 
-##                71.0 
-##  
-## 
-## Producers accuracy: 
-##                  AD             control                 FTD     MCI/ADConverter 
-##                69.8                72.7               100.0                 0.0 
-## MCI/non-ADConverter 
-##                73.3 
-##  
-## 
-## Confusion matrix 
-##                      y
-## x                     AD control FTD MCI/ADConverter MCI/non-ADConverter
+##                      Reference
+## Prediction            AD control FTD MCI/ADConverter MCI/non-ADConverter
 ##   AD                  30       1   0               9                   3
 ##   control              0      16   0               0                   6
 ##   FTD                  0       0   3               0                   0
 ##   MCI/ADConverter      2       0   0               0                   0
-##   MCI/non-ADConverter  4       0   3               1                  22</code></pre>
+##   MCI/non-ADConverter  4       0   3               1                  22
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.71            
+##                  95% CI : (0.6107, 0.7964)
+##     No Information Rate : 0.36            
+##     P-Value [Acc &gt; NIR] : 1.203e-12       
+##                                           
+##                   Kappa : 0.5921          
+##                                           
+##  Mcnemar&#39;s Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: AD Class: control Class: FTD Class: MCI/ADConverter
+## Sensitivity             0.8333         0.9412     0.5000                 0.0000
+## Specificity             0.7969         0.9277     1.0000                 0.9778
+## Pos Pred Value          0.6977         0.7273     1.0000                 0.0000
+## Neg Pred Value          0.8947         0.9872     0.9691                 0.8980
+## Prevalence              0.3600         0.1700     0.0600                 0.1000
+## Detection Rate          0.3000         0.1600     0.0300                 0.0000
+## Detection Prevalence    0.4300         0.2200     0.0300                 0.0200
+## Balanced Accuracy       0.8151         0.9344     0.7500                 0.4889
+##                      Class: MCI/non-ADConverter
+## Sensitivity                              0.7097
+## Specificity                              0.8841
+## Pos Pred Value                           0.7333
+## Neg Pred Value                           0.8714
+## Prevalence                               0.3100
+## Detection Rate                           0.2200
+## Detection Prevalence                     0.3000
+## Balanced Accuracy                        0.7969</code></pre>
 <p>To tune mtry we can use <code>tuneRF</code> from <code>randomForest</code>. This function gets multiple arguments including <code>x</code>: data without the class (group) column, <code>y</code>: group columns, <code>mtryStart</code>: starting value of mtry, <code>ntreeTry</code>: number of trees to build. It will use out of bag error to calculate tuned value for mtry. However, for tuning other parameters we might need to write our own function or use other packages such as <code>caret</code>.</p>
 <div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="random-forest.html#cb51-1"></a><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
 <span id="cb51-2"><a href="random-forest.html#cb51-2"></a><span class="kw">set.seed</span>(<span class="dv">5</span>)</span>

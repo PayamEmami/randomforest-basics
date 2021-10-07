@@ -24,7 +24,7 @@
 <meta name="author" content="Payam Emami" />
 
 
-<meta name="date" content="2021-10-06" />
+<meta name="date" content="2021-10-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -624,15 +624,15 @@ Figure 4.1: plot of p-tau vs t-tau using two models. The model on the left has s
 <span id="cb39-28"><a href="bagging.html#cb39-28"></a>acc_tree&lt;-<span class="kw">mean</span>(limited_data4_testing<span class="op">$</span>group <span class="op">==</span><span class="st"> </span><span class="kw">predict</span>(tree_model,limited_data4_testing,<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>))</span>
 <span id="cb39-29"><a href="bagging.html#cb39-29"></a></span>
 <span id="cb39-30"><a href="bagging.html#cb39-30"></a></span>
-<span id="cb39-31"><a href="bagging.html#cb39-31"></a></span>
-<span id="cb39-32"><a href="bagging.html#cb39-32"></a>confMatrix_bagging&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
-<span id="cb39-33"><a href="bagging.html#cb39-33"></a>confMatrix_tree&lt;-rfUtilities<span class="op">::</span><span class="kw">accuracy</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb39-31"><a href="bagging.html#cb39-31"></a>confMatrix_bagging&lt;-caret<span class="op">::</span><span class="kw">confusionMatrix</span>(<span class="kw">predict</span>(bagged_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb39-32"><a href="bagging.html#cb39-32"></a>confMatrix_tree&lt;-caret<span class="op">::</span><span class="kw">confusionMatrix</span>(<span class="kw">predict</span>(tree_model,limited_data4_testing[,<span class="op">-</span><span class="dv">7</span>],<span class="dt">type =</span> <span class="st">&quot;class&quot;</span>),limited_data4_testing<span class="op">$</span>group )</span>
+<span id="cb39-33"><a href="bagging.html#cb39-33"></a></span>
 <span id="cb39-34"><a href="bagging.html#cb39-34"></a></span>
 <span id="cb39-35"><a href="bagging.html#cb39-35"></a></span>
-<span id="cb39-36"><a href="bagging.html#cb39-36"></a></span>
-<span id="cb39-37"><a href="bagging.html#cb39-37"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
-<span id="cb39-38"><a href="bagging.html#cb39-38"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>confusion),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>))</span>
-<span id="cb39-39"><a href="bagging.html#cb39-39"></a></span>
+<span id="cb39-36"><a href="bagging.html#cb39-36"></a>plot_data&lt;-<span class="kw">rbind</span>(<span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_bagging<span class="op">$</span>table),<span class="dt">Method=</span><span class="st">&quot;Bagging&quot;</span>),</span>
+<span id="cb39-37"><a href="bagging.html#cb39-37"></a>      <span class="kw">data.frame</span>(reshape<span class="op">::</span><span class="kw">melt</span>(confMatrix_tree<span class="op">$</span>table),<span class="dt">Method=</span><span class="st">&quot;Normal&quot;</span>))</span>
+<span id="cb39-38"><a href="bagging.html#cb39-38"></a></span>
+<span id="cb39-39"><a href="bagging.html#cb39-39"></a><span class="kw">names</span>(plot_data)[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]&lt;-<span class="kw">c</span>(<span class="st">&quot;x&quot;</span>,<span class="st">&quot;y&quot;</span>)</span>
 <span id="cb39-40"><a href="bagging.html#cb39-40"></a>plot_data<span class="op">$</span>Color=<span class="ot">NA</span></span>
 <span id="cb39-41"><a href="bagging.html#cb39-41"></a>plot_data<span class="op">$</span>Color[plot_data<span class="op">$</span>x<span class="op">==</span>plot_data<span class="op">$</span>y]&lt;-<span class="st">&quot;red&quot;</span></span>
 <span id="cb39-42"><a href="bagging.html#cb39-42"></a><span class="kw">library</span>(ggplot2)</span>
