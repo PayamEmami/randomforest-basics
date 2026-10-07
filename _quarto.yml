@@ -1,0 +1,19 @@
+project:
+  type: book
+
+book:
+  title: "Classification and Regression by Random Forest"
+  author: "Payam Emami"
+  date: today
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - random-forest-practice.qmd
+    - exercises.qmd
+
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand

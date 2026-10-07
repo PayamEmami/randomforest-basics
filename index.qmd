@@ -1,0 +1,25 @@
+# Prerequisites {.unnumbered}
+
+In order to run the code in this chapter, you will need to install a number of packages. The packages are listed below.
+
+```{r eval=FALSE,message=FALSE,warning=FALSE,error=FALSE,include=TRUE,results='hide'}
+# Install packages
+install.packages("formatR")
+install.packages("heplots")
+install.packages("ipred")
+install.packages("rpart")
+install.packages("randomForest")
+install.packages("readr")
+install.packages("ggplot2")
+install.packages("cowplot")
+install.packages("mltools")
+install.packages("tree")
+install.packages("reshape")
+install.packages("gridBase")
+install.packages("DiagrammeR")
+install.packages("caret")
+```
+
+We will also use a dataset in this chapter. The data set contains the expression measure of 4 clinical variables, age and gender for 206 samples. Samples are from people with Alzheimer's disease (AD), frontotemporal Dementia (FTD), two groups of mild cognitive impairment (MCI), and non-demented controls. We will use both the full dataset and also a limited one (only AD and controls). Here is a small description of the data from the original paper: "This study includes CSF samples from 76 AD patients, 74 mild cognitive impairment (MCI) patients, 11 frontotemporal dementia (FTD) patients, and 45 non-dementia controls. The MCI patients were followed for 4–8 years at 6–12 months intervals and eventually diagnosed with AD (MCI/AD converters) (n=21) or remained at the MCI stage (stable MCI) (n=53)"
+
+Khoonsari, Payam Emami et al. 'Improved Differential Diagnosis of Alzheimer's Disease by Integrating ELISA and Mass Spectrometry-Based Cerebrospinal Fluid Biomarkers'. 1 Jan. 2019 : 639 – 651.

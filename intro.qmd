@@ -1,10 +1,3 @@
----
-output:
-html_document:
-      code_folding: hide
-editor_options:
-  chunk_output_type: console
----
 # Introduction {#intro}
 
 In this chapter, we are going to learn about random forest for supervised classification and regression.
@@ -23,6 +16,22 @@ In order to learn how random forest works, we will need to go through a few cent
 * Decision trees
 * Bagging
 * introducing randomness
+
+We will also use a dataset throughout this chapter, described on the [Prerequisites](index.qmd) page. We load it here, together with a version limited to only the AD and control groups:
+
+```{r message=FALSE,warning=FALSE,error=FALSE}
+# read the raw data
+data<-read.csv("data/data.csv",sep = ";",
+               stringsAsFactors = F,check.names = F,
+               colClasses = c("numeric","character","numeric","numeric","numeric","numeric","numeric","character"))
+# remove the index row
+data<-data[,-1]
+data$group[data$group=="non-demented controls"]<-"control"
+# limit to AD and controls
+limited_data<-data[data$group%in%c("AD","control"),]
+
+knitr::opts_chunk$set(dev='svg')
+```
 
 # Decision trees {#dectr}
 
@@ -52,7 +61,7 @@ Each circle is a called a node and each line is called an edge. The very first n
 
 Decision trees are normally built through sequentially segmenting the data using simple rules until reaching some criteria for stooping. Let's try to develop an intuition about them using our dataset. Here we focus on classification and later extend it to the regression.
 
-In Figure \@ref(fig:fig-groups1), we have plotted our AD data (only AD and controls). On the $x$ axis we have $A\beta$ and on the $y$ axis we have t tau. 
+In Figure @fig-groups1, we have plotted our AD data (only AD and controls). On the $x$ axis we have $A\beta$ and on the $y$ axis we have t tau. 
 
 ```{r fig-groups1, fig.cap='The example of two variables measured on a number of samples.', fig.align='center',warning=FALSE,message=FALSE}
 
@@ -138,7 +147,7 @@ grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps2,
 
 ```
 
-We can see in Figure \@ref(fig:fig-groups4) that both plots are a bit "cleaner" than the original plot with respect to the group distribution. This is probably a  bit more clear if we look at the distribution of different groups.
+We can see in Figure @fig-groups4 that both plots are a bit "cleaner" than the original plot with respect to the group distribution. This is probably a  bit more clear if we look at the distribution of different groups.
 
 
 ```{r fig-groups5, fig.cap='The example of two variables measured on a number of samples. Cut on abeta=610. The top plot shows all the data. The left figure shows the data points where abeta is <610 and the right plot shows the data points with abeta >=610', fig.align='center',warning=FALSE,message=FALSE}
@@ -291,7 +300,7 @@ grid.line.to(x = unit(0.5, "npc"), y = unit(1, "npc"), vp = vps5,
 
 ```
 
-If we read Figure \@ref(fig:fig-groups9) from top to bottom, we first started with all the data, we then segment the data based on abeta=610, giving us two segments of the original data. We then took the left segment (abeta<610) and did another round of segmentation giving us two more subgroups of the data.
+If we read Figure @fig-groups9 from top to bottom, we first started with all the data, we then segment the data based on abeta=610, giving us two segments of the original data. We then took the left segment (abeta<610) and did another round of segmentation giving us two more subgroups of the data.
 
 We can now continue with the right subgroup (abeta>=610) similar to the left subgroup. This subgroup looks quite clean already but we can probably make it slightly better but putting a cutoff on t-tau. This time we place our segmentation line on 475.
 
@@ -479,7 +488,7 @@ grid.text("Control",x = unit(0.5, "npc"),y=unit(-0.25, "npc"),vp=vps7,gp = gpar(
 ```
 
 
-To do the classification, we just need to follow the rules we have derived in the previous steps. At the very beginning (the root of the tree), we used $A\beta=610$, on the left-hand side we used $A\beta=480$ and on the right-hand side, we used $t-tau=475$. So for a new sample, we first test where its $A\beta$ is lower than 610, if yes, it goes to the left of the tree otherwise it will go to the right side. If for example, it goes to the left side, we again test $A\beta$ and send the sample to the suitable leaf. The label of the leaf will show the classification of this new sample. The decision rules are shown in figure \@ref(fig:fig-groups13).
+To do the classification, we just need to follow the rules we have derived in the previous steps. At the very beginning (the root of the tree), we used $A\beta=610$, on the left-hand side we used $A\beta=480$ and on the right-hand side, we used $t-tau=475$. So for a new sample, we first test where its $A\beta$ is lower than 610, if yes, it goes to the left of the tree otherwise it will go to the right side. If for example, it goes to the left side, we again test $A\beta$ and send the sample to the suitable leaf. The label of the leaf will show the classification of this new sample. The decision rules are shown in figure @fig-groups13.
 
 ```{r fig-groups13, fig.cap='The example of rules derived for the tree', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
 
@@ -1636,112 +1645,3 @@ randomForest::varImpPlot(rf_model)
 ```
 
 Both mean decrease in accuracy (left plot) and impurity base (right plot) are plotted here. We see that our top tree features are age, t-tau and $A\beta$. Mean decrease in accuracy tells us that t-tau is more important that $A\beta$ but Gini tells the opposite. We can use any of these to select our variables.
-
-## How to use random forest in R
-
-There are many packages for random forest. We have been using `randomForest` package in R that does a decent job and is fast enough for most of the applications. There are other implementations that you can check out such as `ranger` that is even faster. We here go through `randomForest` package briefly.
-
-### Data
-
-Our data has to be in a data.frame where features are in the columns and samples in the rows. The categorical variables should preferably be `factor` and you should have a column for your response variable. You can then use `formula` capability of R to easily run randomForest: `randomForest::randomForest(group ~ ., data = limited_data4_training)`. This essentially says that our data is sitting in a data frame which has a called named `group`. The dot in from of tilde (`~`) tells the formula the use all other columns (except group) for modelling the data. This is how our data look like:
-
-```{r}
-head(limited_data4_training)
-```
-
-You can set various parameters in `randomForest` but probably the most relevant ones are `mtry`, `ntree` and `importance`. We have already covered all of these and in one command you can run `randomForest::randomForest(group ~ ., data = limited_data4_training,mtry=5,ntree=100)`.
-
-```{r}
-
-
-set.seed(20)
-testing_index<-sample(1:length(data$p_tau),100,replace = F)
-
-limited_data4_training<-data[-testing_index,]
-limited_data4_testing<-data[testing_index,]
-
-limited_data4_training$group<-as.factor(limited_data4_training$group)
-limited_data4_training$gender<-as.factor(limited_data4_training$gender)
-
-limited_data4_testing$group<-as.factor(limited_data4_testing$group)
-limited_data4_testing$gender<-as.factor(limited_data4_testing$gender)
-
-rf_model<-randomForest::randomForest(group ~ ., data = limited_data4_training,ntree=100,importance=T)
-
-print(rf_model)
-
-```
-
-For doing prediction, we will use `predict` function. This function has three main arguments:`object`, `newdata` and `type`. `object` is the model we have trained. `newdata` is the data.frame of our new data and `type` is one of `response`, `prob.` or `votes`, indicating the type of output: predicted values, matrix of class probabilities, or matrix of vote counts.
-
-```{r}
-
-predicted_class<-predict(rf_model,limited_data4_testing,type="response")
-head(predicted_class)
-
-```
-
-We can use `confusionMatrix` function from `caret` package to calculate some accuracy measures. This function gets the predicted and true values `caret::confusionMatrix((predicted_class,true_class)`
-
-```{r}
-
-caret::confusionMatrix(predicted_class, limited_data4_testing$group)
-```
-
-To tune mtry we can use `tuneRF` from `randomForest`. This function gets multiple arguments including `x`: data without the class (group) column, `y`: group columns, `mtryStart`: starting value of mtry, `ntreeTry`: number of trees to build. It will use out of bag error to calculate tuned value for mtry. However, for tuning other parameters we might need to write our own function or use other packages such as `caret`.
-
-```{r,fig-groups37, fig.cap='Tuning output of tuneRF', fig.align='center',warning=FALSE,message=FALSE,fig.height=10,fig.width=15}
-par(mfrow=c(1,1))
-set.seed(5)
-randomForest::tuneRF(limited_data4_training,limited_data4_training$group,mtryStart = 1)
-```
-
-Finally, to see the variable importance, we can use `importance` and `varImpPlot` function to extract and plot the variable importance. There are multiple parameters but the most important ones are `x`: random forest model, `type`: either 1 or 2, specifying the type of importance measure (1=mean decrease in accuracy, 2=mean decrease in node impurity), `class`: for the classification problem, which class-specific measure to return.
-
-```{r,fig-groups38, fig.cap='Variable importance plot', fig.align='center',fig.height=10,fig.width=15}
-par(mfrow=c(1,1))
-randomForest::importance(rf_model)
-randomForest::varImpPlot(rf_model)
-```
-
-# Summary
-
-Random forests are extremely powerful algorithms that can be used both for prediction and feature selection. They don't require much data pre-treatment, they are generally robust with respect to scales of the data. They can handle missing values and can be used both for classification and regression. However, trees, in general, can result in very different models if the training data change. So to get a good estimate of feature importance and prediction accuracy it is highly recommended to cross-validate the trees.
-Despite some arguing that random forests do produce 'good' predictions, there are variants that are very powerful and in fact, they were winning many machine learning competitions in many different fields. If you are interested you can look at gradient boosting for decision trees. Like any other modelling technique, random forests are just another algorithm, as a researcher, it is our job to make sure that we use them in a right way. Please always do validation of the model before publishing your results!
-
-# Exercises
-
-In this section we want to re-analyze a data set from mixOmics package. According to the authors: "The Small Round Blue Cell Tumors (SRBCT) dataset from includes the expression levels of 2,308 genes measured on 63 samples. The samples are classified into four classes as follows: 8 Burkitt Lymphoma (BL), 23 Ewing Sarcoma (EWS), 12 neuroblastoma (NB), and 20 rhabdomyosarcoma (RMS)."
-
-The dataset can be downloaded from here: https://github.com/mixOmicsTeam/mixOmics/raw/master/data/srbct.rda
-
-When downloaded, you can load the data into `R` using the `load` function:
-
-```{r, eval=FALSE}
-load("PATH_TO_FOLDER/srbct.rda")
-```
-
-Please note that, `PATH_TO_FOLDER` *must* be change to the path you downloaded the file into.
-
-After loading the data, we will have a variable called `srbct` which is a `list` containing the following:
-
-`gene`: a data frame with 63 rows and 2308 columns. The expression levels of 2,308 genes in 63 subjects.
-
-`class`: a class vector containing the class tumor of each individual (4 classes in total).
-
-`gene.name`: a data frame with 2,308 rows and 2 columns containing further information on the gene
-
-We can combine `gene` and `class` into a single data frame using:
-
-```{r, eval=FALSE}
-srbct_data<-data.frame(srbct$gene,class=srbct$class)
-```
-
-We are going to use random forests to find variables that are important for discriminating the 4 classes.
-
-1. Randomly split your data into a training (80 percent of the data) and testing set (20 percent of the data).
-2. Tune a hyperparameter (`mtry`) of random forest (only on training data)
-3. Fit a random forest model to the training data and find its error rate (either out of bag error or cross validation. up to you!)
-4. What is the accuracy of predicting the test set?
-5. Find the top 10 most important genes for discriminating all the classes
-6. What are the top 10 genes for predicting *EWS* class
